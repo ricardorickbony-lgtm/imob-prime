@@ -35,7 +35,7 @@
   <!-- ========================================================================= -->
   <!-- BARRA DE DEMONSTRAÇÃO VIP / SWITCHER DE TEMPLATES (IMPACTO DIGITAL)       -->
   <!-- ========================================================================= -->
-  <aside class="template-switcher-bar" aria-label="Seletor de Demonstração para Prospecção">
+  <aside class="template-switcher-bar hidden md:flex" aria-label="Seletor de Demonstração para Prospecção">
     <div class="flex items-center gap-2">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
       <span class="font-bold text-slate-200">Impacto Digital Showcase:</span>
@@ -108,18 +108,18 @@
   <!-- ========================================================================= -->
   <header id="main-site-header" class="header-floating-clean">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
+      <div class="flex items-center justify-between h-16 sm:h-20">
         
         <!-- Logo Oficial da Imobiliária -->
-        <a href="index.html" class="flex items-center gap-3 group">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 group">
+          <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
           </div>
           <div>
-            <span class="text-xl sm:text-2xl font-black tracking-tight block leading-none brand-title imob-nome">
-              PRIME <span class="text-blue-500 font-extrabold text-sm uppercase bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-400/20">IMÓVEIS</span>
+            <span class="text-base sm:text-2xl font-black tracking-tight block leading-none brand-title imob-nome">
+              PRIME <span class="text-blue-500 font-extrabold text-[10px] sm:text-sm uppercase bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-400/20">IMÓVEIS</span>
             </span>
-            <span class="text-[11px] font-medium tracking-wide block mt-1 brand-subtitle">Santo André & Região • CRECI 34.890-J</span>
+            <span class="hidden sm:block text-[11px] font-medium tracking-wide mt-1 brand-subtitle">Santo André & Região • CRECI 34.890-J</span>
           </div>
         </a>
 
@@ -137,16 +137,16 @@
         </nav>
 
         <!-- Ações do Topo: WhatsApp com status online -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
           <div class="hidden sm:flex items-center gap-2 bg-slate-900/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-xs">
             <span class="wa-status-dot"></span>
             <span class="wa-status-text text-[11px] font-semibold text-slate-200">Estamos online agora</span>
           </div>
 
-          <a href="https://wa.me/5511970558412" target="_blank" class="link-wa-dinamico bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center gap-2">
-            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+          <a href="https://wa.me/5511970558412" target="_blank" class="link-wa-dinamico bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
             <span class="hidden sm:inline">Falar com Corretor</span>
-            <span class="sm:hidden">WhatsApp</span>
+            <span class="sm:hidden text-xs">WhatsApp</span>
           </a>
         </div>
 
@@ -157,47 +157,47 @@
   <!-- ========================================================================= -->
   <!-- HERO SECTION COM BUSCADOR INTEGRADO E DESIGN IMOBILIÁRIO DE ALTA CONVERSÃO -->
   <!-- ========================================================================= -->
-  <section class="relative bg-slate-950 py-20 sm:py-28 px-4 overflow-hidden min-h-[620px] flex items-center">
+  <section class="relative bg-slate-950 py-10 sm:py-24 px-4 overflow-hidden min-h-0 sm:min-h-[580px] flex items-center">
     <!-- Imagem de Fundo de Alto Padrão com Scrim Suave -->
     <div class="absolute inset-0 z-0">
       <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85" alt="Residência de Alto Padrão" class="w-full h-full object-cover">
       <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/75"></div>
     </div>
 
-    <div class="relative z-10 max-w-6xl mx-auto w-full text-center space-y-6 pt-4">
+    <div class="relative z-10 max-w-6xl mx-auto w-full text-center space-y-4 sm:space-y-6 pt-2 sm:pt-4">
       
       <!-- Selo Clean -->
-      <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-200 text-[11px] sm:text-sm font-semibold px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full backdrop-blur-md">
         <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
         <span>Curadoria Exclusiva em Santo André & Região</span>
       </div>
 
       <!-- Título Principal Limpo & Elegante -->
-      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
+      <h1 class="text-2xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
         Os melhores imóveis para comprar ou alugar.
       </h1>
 
-      <p class="text-base sm:text-lg text-slate-200/90 max-w-2xl mx-auto font-light">
+      <p class="text-xs sm:text-lg text-slate-200/90 max-w-2xl mx-auto font-light">
         Encontre o imóvel que combina perfeitamente com o seu estilo de vida.
       </p>
 
       <!-- ===================================================================== -->
       <!-- BOX DE BUSCA CLEAN FLUTUANTE (COMPRAR / ALUGAR / LANÇAMENTOS)          -->
       <!-- ===================================================================== -->
-      <div class="max-w-4xl mx-auto bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-3xl shadow-2xl border border-white/30 text-left mt-6">
+      <div class="max-w-4xl mx-auto bg-white/95 backdrop-blur-md p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/30 text-left mt-4 sm:mt-6">
         
-        <!-- Abas em Pílula -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-3 mb-4">
-          <button data-finalidade="todos" class="btn-tab-finalidade active bg-blue-600 text-white font-bold text-xs sm:text-sm px-5 py-2 rounded-xl transition shadow">
+        <!-- Abas em Pílula com scroll horizontal no mobile -->
+        <div class="flex items-center gap-1.5 sm:gap-2 border-b border-slate-200/80 pb-2.5 mb-3.5 overflow-x-auto no-scrollbar -mx-0.5 px-0.5">
+          <button data-finalidade="todos" class="btn-tab-finalidade active bg-blue-600 text-white font-bold text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-xl transition shadow shrink-0 whitespace-nowrap">
             Todos
           </button>
-          <button data-finalidade="venda" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-5 py-2 rounded-xl transition">
+          <button data-finalidade="venda" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-xl transition shrink-0 whitespace-nowrap">
             Comprar
           </button>
-          <button data-finalidade="aluguel" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-5 py-2 rounded-xl transition">
+          <button data-finalidade="aluguel" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-xl transition shrink-0 whitespace-nowrap">
             Alugar
           </button>
-          <button data-finalidade="lancamento" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+          <button data-finalidade="lancamento" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 whitespace-nowrap">
             <span>Lançamentos</span>
             <span class="text-[9px] bg-purple-200 text-purple-800 font-bold px-1.5 py-0.5 rounded">Planta</span>
           </button>
