@@ -1,0 +1,340 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   Imobiliária Prime - Design System & Folha de Estilos
+   Padrão Ricardo & Severino (Impacto Digital)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --secondary: #0f172a;
+  --accent-gold: #d97706;
+  --accent-emerald: #059669;
+  --bg-dark: #070a10;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #f8fafc;
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+/* Tipografia de Luxo */
+.font-serif-luxury {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ==========================================================================
+   Barra Flutuante de Demonstração / Switcher de Templates (Impacto Digital)
+   ========================================================================== */
+.template-switcher-bar {
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  color: #f8fafc;
+  font-size: 11px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  position: relative;
+  z-index: 60;
+}
+
+.template-pill {
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.template-pill:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+.template-pill.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.4);
+}
+.template-pill.admin-pill {
+  background: #059669;
+  color: #ffffff;
+  border-color: #10b981;
+}
+.template-pill.admin-pill:hover {
+  background: #047857;
+}
+
+/* ==========================================================================
+   Hero Video / Background Elements
+   ========================================================================== */
+.hero-video-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-video-element {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 177.78vh;
+  min-width: 100%;
+  height: 56.25vw;
+  min-height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+@media (min-aspect-ratio: 16/9) {
+  .hero-video-element {
+    width: 100%;
+    height: 56.25vw;
+  }
+}
+@media (max-aspect-ratio: 16/9) {
+  .hero-video-element {
+    width: 177.78vh;
+    height: 100%;
+  }
+}
+
+.hero-video-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 60% 40%, rgba(15, 23, 42, 0.50) 0%, rgba(7, 10, 16, 0.90) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Cards de Imóveis & Vitrine
+   ========================================================================== */
+.property-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
+}
+.property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+.property-badge-finalidade {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.badge-venda {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+.badge-aluguel {
+  background: #059669;
+  color: #ffffff;
+}
+.badge-lancamento {
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+.property-badge-code {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  color: #f8fafc;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  z-index: 10;
+}
+
+/* Tags de Características dos Imóveis */
+.feature-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* ==========================================================================
+   Botão Flutuante de WhatsApp Inteligente (Horário Comercial)
+   ========================================================================== */
+.btn-whatsapp-flutuante {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #25d366;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 50px;
+  box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.4), 0 8px 10px -6px rgba(37, 211, 102, 0.2);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-whatsapp-flutuante:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 30px -5px rgba(37, 211, 102, 0.5);
+  color: #ffffff;
+}
+
+.wa-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Animação do Pulso Online */
+.pulse-online {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  animation: pulse-ring 1.5s infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* ==========================================================================
+   Modais & Simulador de Financiamento
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease-out;
+}
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transform: scale(0.95);
+  transition: transform 0.25s ease-out;
+}
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+
+/* Simulador Financeiro */
+.simulador-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+/* Responsividade Mobile First */
+@media (max-width: 640px) {
+  .btn-whatsapp-flutuante span.wa-texto-longo {
+    display: none;
+  }
+  .btn-whatsapp-flutuante {
+    padding: 12px;
+    border-radius: 50%;
+  }
+  .template-switcher-bar {
+    justify-content: center;
+  }
+}

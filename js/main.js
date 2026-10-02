@@ -1,0 +1,631 @@
+/**
+ * main.js - Lógica de Interatividade, Vitrine de Imóveis, Filtros,
+ * Simulador de Financiamento e Atendimento Inteligente em Tempo Real
+ * Imobiliária Prime - Padrão Severino & Ricardo (Impacto Digital)
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  initImobiliaria();
+});
+
+let imoveisFiltrados = [];
+let filtroFinalidadeAtual = 'todos'; // 'todos' | 'venda' | 'aluguel' | 'lancamento'
+
+function initImobiliaria() {
+  atualizarDadosInstitucionais();
+  configurarHorarioWhatsApp();
+  povoarFiltroBairros();
+  aplicarFiltrosEstatisticas();
+  configurarEventosFiltros();
+  configurarModal();
+  configurarFormularioProprietario();
+
+  // Escuta atualizações de estoque e configurações emitidas pelo painel SaaS
+  window.addEventListener('imob_dados_atualizados', () => {
+    povoarFiltroBairros();
+    aplicarFiltrosEstatisticas();
+  });
+
+  window.addEventListener('imob_config_atualizada', () => {
+    atualizarDadosInstitucionais();
+    configurarHorarioWhatsApp();
+  });
+}
+
+/**
+ * 1. Atualização dos Dados Institucionais (White-Label)
+ */
+function atualizarDadosInstitucionais() {
+  const config = DB.getConfig();
+
+  // Título e Slogan
+  document.querySelectorAll('.imob-nome').forEach(el => el.textContent = config.nome);
+  document.querySelectorAll('.imob-slogan').forEach(el => el.textContent = config.slogan);
+  document.querySelectorAll('.imob-creci').forEach(el => el.textContent = config.creci);
+  document.querySelectorAll('.imob-telefone').forEach(el => el.textContent = config.telefone);
+  document.querySelectorAll('.imob-endereco').forEach(el => el.textContent = config.endereco);
+  document.querySelectorAll('.imob-cidade').forEach(el => el.textContent = config.cidade);
+  document.querySelectorAll('.imob-email').forEach(el => el.textContent = config.email);
+
+  // Redes Sociais
+  const setHref = (id, url) => {
+    document.querySelectorAll(id).forEach(el => {
+      if (url) el.href = url;
+    });
+  };
+  setHref('.link-instagram', config.instagram);
+  setHref('.link-facebook', config.facebook);
+  setHref('.link-youtube', config.youtube);
+  setHref('.link-tiktok', config.tiktok);
+
+  // Google Maps Iframe
+  const mapContainer = document.getElementById('google-maps-container');
+  if (mapContainer && config.googleMapsUrl) {
+    mapContainer.innerHTML = `
+      <iframe 
+        src="${config.googleMapsUrl}" 
+        width="100%" 
+        height="100%" 
+        style="border:0;" 
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Localização da Imobiliária">
+      </iframe>
+    `;
+  }
+}
+
+/**
+ * 2. Botão Inteligente de WhatsApp com Status em Tempo Real
+ */
+function configurarHorarioWhatsApp() {
+  const config = DB.getConfig();
+  const agora = new Date();
+  const diaSemana = agora.getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+  const horaDecimal = agora.getHours() + (agora.getMinutes() / 60);
+
+  let estaOnline = false;
+  let statusTexto = 'Plantão de Atendimento';
+
+  if (diaSemana >= 1 && diaSemana <= 5) {
+    // Segunda a Sexta
+    if (horaDecimal >= config.horaInicioSemana && horaDecimal < config.horaFimSemana) {
+      estaOnline = true;
+      statusTexto = 'Estamos online agora';
+    } else {
+      statusTexto = 'Plantão de Vendas';
+    }
+  } else if (diaSemana === 6) {
+    // Sábado
+    if (horaDecimal >= config.horaInicioSabado && horaDecimal < config.horaFimSabado) {
+      estaOnline = true;
+      statusTexto = 'Estamos online agora';
+    } else {
+      statusTexto = 'Plantão de Vendas';
+    }
+  } else {
+    // Domingo / Feriado
+    statusTexto = 'Plantão de Vendas';
+  }
+
+  // Atualiza indicadores visuais nos botões
+  document.querySelectorAll('.wa-status-text').forEach(el => {
+    el.textContent = statusTexto;
+  });
+
+  document.querySelectorAll('.wa-status-dot').forEach(el => {
+    if (estaOnline) {
+      el.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse wa-status-dot';
+    } else {
+      el.className = 'w-2 h-2 rounded-full bg-amber-400 wa-status-dot';
+    }
+  });
+
+  // Atualiza links de WhatsApp para o número oficial
+  const waUrl = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent('Olá! Gostaria de informações sobre os imóveis disponíveis na ' + config.nome + '.')}`;
+  document.querySelectorAll('.link-wa-dinamico').forEach(el => {
+    el.href = waUrl;
+  });
+}
+
+/**
+ * 3. Popula Filtro de Bairros Dinamicamente a partir dos Imóveis Cadastrados
+ */
+function povoarFiltroBairros() {
+  const selectBairro = document.getElementById('filtro-bairro');
+  if (!selectBairro) return;
+
+  const imoveis = DB.getImoveis();
+  const bairros = [...new Set(imoveis.map(im => im.bairro))].sort();
+
+  const valorAtual = selectBairro.value;
+  selectBairro.innerHTML = '<option value="">Todos os Bairros</option>';
+
+  bairros.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b;
+    opt.textContent = b;
+    selectBairro.appendChild(opt);
+  });
+
+  if (valorAtual) selectBairro.value = valorAtual;
+}
+
+/**
+ * 4. Aplicação de Filtros e Renderização da Vitrine
+ */
+function aplicarFiltrosEstatisticas() {
+  const imoveis = DB.getImoveis();
+
+  const termoBusca = (document.getElementById('filtro-termo')?.value || '').toLowerCase().trim();
+  const tipo = document.getElementById('filtro-tipo')?.value || '';
+  const bairro = document.getElementById('filtro-bairro')?.value || '';
+  const quartos = document.getElementById('filtro-quartos')?.value || '';
+  const vagas = document.getElementById('filtro-vagas')?.value || '';
+  const precoMax = parseFloat(document.getElementById('filtro-preco-max')?.value) || 0;
+  const ordenacao = document.getElementById('filtro-ordenacao')?.value || 'destaque';
+
+  imoveisFiltrados = imoveis.filter(im => {
+    // Finalidade (Venda / Aluguel / Lançamento)
+    if (filtroFinalidadeAtual !== 'todos' && im.finalidade !== filtroFinalidadeAtual) {
+      return false;
+    }
+
+    // Tipo do imóvel
+    if (tipo && im.tipo !== tipo) {
+      return false;
+    }
+
+    // Bairro
+    if (bairro && im.bairro !== bairro) {
+      return false;
+    }
+
+    // Quartos
+    if (quartos && im.quartos < parseInt(quartos)) {
+      return false;
+    }
+
+    // Vagas
+    if (vagas && im.vagas < parseInt(vagas)) {
+      return false;
+    }
+
+    // Preço Máximo
+    if (precoMax > 0) {
+      const precoComparar = im.finalidade === 'aluguel' ? im.precoAluguel : im.preco;
+      if (precoComparar > precoMax) return false;
+    }
+
+    // Termo textual
+    if (termoBusca) {
+      const textoCompleto = `${im.codigo} ${im.titulo} ${im.bairro} ${im.cidade} ${im.endereco} ${im.descricao} ${(im.tags || []).join(' ')}`.toLowerCase();
+      if (!textoCompleto.includes(termoBusca)) return false;
+    }
+
+    return true;
+  });
+
+  // Ordenação
+  imoveisFiltrados.sort((a, b) => {
+    const precoA = a.finalidade === 'aluguel' ? a.precoAluguel : a.preco;
+    const precoB = b.finalidade === 'aluguel' ? b.precoAluguel : b.preco;
+
+    if (ordenacao === 'menor_preco') return precoA - precoB;
+    if (ordenacao === 'maior_preco') return precoB - precoA;
+    if (ordenacao === 'maior_area') return (b.areaUtil || 0) - (a.areaUtil || 0);
+    // Padrão: Destaques primeiro
+    if (a.destaque && !b.destaque) return -1;
+    if (!a.destaque && b.destaque) return 1;
+    return 0;
+  });
+
+  renderizarGridImoveis();
+  atualizarContadores();
+}
+
+/**
+ * 5. Renderização do Grid de Imóveis
+ */
+function renderizarGridImoveis() {
+  const container = document.getElementById('grid-imoveis');
+  if (!container) return;
+
+  if (imoveisFiltrados.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+          🏢
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">Nenhum imóvel encontrado com esses filtros</h3>
+        <p class="text-slate-500 text-sm max-w-md mx-auto mb-6">Tente ajustar o valor, a localização ou limpar os filtros para visualizar outras oportunidades do nosso portfólio.</p>
+        <button onclick="limparFiltros()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md">
+          Limpar Todos os Filtros
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = imoveisFiltrados.map(im => {
+    // Formatação de Preço
+    let badgeFinalidade = '';
+    let precoFormatado = '';
+
+    if (im.finalidade === 'aluguel') {
+      badgeFinalidade = '<span class="property-badge-finalidade badge-aluguel">Aluguel</span>';
+      precoFormatado = `R$ ${im.precoAluguel.toLocaleString('pt-BR')} <span class="text-xs font-normal text-slate-500">/mês</span>`;
+    } else if (im.finalidade === 'lancamento') {
+      badgeFinalidade = '<span class="property-badge-finalidade badge-lancamento">Lançamento</span>';
+      precoFormatado = `<span class="text-xs text-slate-500 font-normal block">A partir de</span> R$ ${im.preco.toLocaleString('pt-BR')}`;
+    } else {
+      badgeFinalidade = '<span class="property-badge-finalidade badge-venda">Venda</span>';
+      precoFormatado = `R$ ${im.preco.toLocaleString('pt-BR')}`;
+    }
+
+    const tagsHtml = (im.tags || []).slice(0, 2).map(tag => `
+      <span class="inline-block bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded">
+        ${tag}
+      </span>
+    `).join('');
+
+    return `
+      <div class="property-card bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm flex flex-col justify-between group">
+        <div>
+          <!-- Imagem e Badges -->
+          <div class="relative h-56 sm:h-60 overflow-hidden bg-slate-900 cursor-pointer" onclick="abrirModalImovel('${im.id}')">
+            <img 
+              src="${im.fotoPrincipal || im.fotos[0]}" 
+              alt="${im.titulo}" 
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none"></div>
+            ${badgeFinalidade}
+            <span class="property-badge-code">${im.codigo}</span>
+            ${im.destaque ? '<span class="absolute bottom-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow">Destaque Exclusivo</span>' : ''}
+          </div>
+
+          <!-- Conteúdo -->
+          <div class="p-5 space-y-3">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              ${tagsHtml}
+            </div>
+
+            <div class="cursor-pointer" onclick="abrirModalImovel('${im.id}')">
+              <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2 group-hover:text-blue-600 transition">
+                ${im.titulo}
+              </h3>
+              <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                ${im.bairro}, ${im.cidade}
+              </p>
+            </div>
+
+            <!-- Atributos do Imóvel (m², quartos, vagas) -->
+            <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 text-slate-700 text-xs">
+              <div class="flex items-center gap-1.5" title="Área Útil">
+                <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                <span class="font-bold">${im.areaUtil} m²</span>
+              </div>
+              <div class="flex items-center gap-1.5" title="Dormitórios / Suítes">
+                <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span class="font-bold">${im.quartos} qtos</span>
+              </div>
+              <div class="flex items-center gap-1.5" title="Vagas de Garagem">
+                <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                <span class="font-bold">${im.vagas} vagas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rodapé do Card com Preço e Ações -->
+        <div class="p-5 pt-0">
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="text-lg font-black text-slate-900 leading-none">
+                ${precoFormatado}
+              </span>
+              ${im.condominio > 0 ? `<span class="block text-[10px] text-slate-400 mt-0.5">Cond. R$ ${im.condominio.toLocaleString('pt-BR')}</span>` : ''}
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button 
+                onclick="abrirModalImovel('${im.id}')" 
+                class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-sm"
+                title="Ver Fotos e Detalhes do Imóvel">
+                Detalhes
+              </button>
+              <a 
+                href="https://wa.me/${DB.getConfig().whatsapp}?text=${encodeURIComponent(`Olá! Gostaria de mais informações sobre o imóvel ${im.codigo} - ${im.titulo} (${im.bairro}).`)}"
+                target="_blank"
+                class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl transition shadow-sm flex items-center justify-center"
+                title="Conversar com Corretor no WhatsApp">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * 6. Contadores de Imóveis
+ */
+function atualizarContadores() {
+  const contadorEl = document.getElementById('contador-imoveis');
+  if (contadorEl) {
+    contadorEl.textContent = `${imoveisFiltrados.length} imóveis encontrados`;
+  }
+}
+
+/**
+ * 7. Configuração de Eventos dos Filtros
+ */
+function configurarEventosFiltros() {
+  // Abas de Finalidade (Comprar, Alugar, Lançamentos, Todos)
+  document.querySelectorAll('.btn-tab-finalidade').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.btn-tab-finalidade').forEach(b => {
+        b.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-md');
+        b.classList.add('bg-white', 'text-slate-700');
+      });
+      btn.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
+      btn.classList.remove('bg-white', 'text-slate-700');
+
+      filtroFinalidadeAtual = btn.dataset.finalidade || 'todos';
+      aplicarFiltrosEstatisticas();
+    });
+  });
+
+  const inputs = ['filtro-termo', 'filtro-tipo', 'filtro-bairro', 'filtro-quartos', 'filtro-vagas', 'filtro-preco-max', 'filtro-ordenacao'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', aplicarFiltrosEstatisticas);
+      el.addEventListener('change', aplicarFiltrosEstatisticas);
+    }
+  });
+
+  document.getElementById('btn-limpar-filtros')?.addEventListener('click', limparFiltros);
+}
+
+function limparFiltros() {
+  ['filtro-termo', 'filtro-tipo', 'filtro-bairro', 'filtro-quartos', 'filtro-vagas', 'filtro-preco-max'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  filtroFinalidadeAtual = 'todos';
+  document.querySelectorAll('.btn-tab-finalidade').forEach(b => {
+    b.classList.remove('active', 'bg-blue-600', 'text-white');
+    b.classList.add('bg-white', 'text-slate-700');
+  });
+  const btnTodos = document.querySelector('.btn-tab-finalidade[data-finalidade="todos"]');
+  if (btnTodos) {
+    btnTodos.classList.add('active', 'bg-blue-600', 'text-white');
+    btnTodos.classList.remove('bg-white', 'text-slate-700');
+  }
+  aplicarFiltrosEstatisticas();
+}
+
+/**
+ * 8. Modal de Detalhes do Imóvel & Simulador de Financiamento
+ */
+let imovelModalAtual = null;
+
+function configurarModal() {
+  const modal = document.getElementById('modal-imovel');
+  const btnFechar = document.getElementById('btn-fechar-modal');
+  if (!modal) return;
+
+  btnFechar?.addEventListener('click', () => {
+    modal.classList.remove('active');
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('active');
+  });
+}
+
+function abrirModalImovel(id) {
+  const imovel = DB.getImovelPorId(id);
+  if (!imovel) return;
+  imovelModalAtual = imovel;
+
+  const modal = document.getElementById('modal-imovel');
+  if (!modal) return;
+
+  // Preenche dados do modal
+  document.getElementById('modal-imovel-titulo').textContent = imovel.titulo;
+  document.getElementById('modal-imovel-codigo').textContent = imovel.codigo;
+  document.getElementById('modal-imovel-endereco').textContent = `${imovel.endereco || ''} - ${imovel.bairro}, ${imovel.cidade}`;
+  document.getElementById('modal-imovel-descricao').textContent = imovel.descricao;
+
+  // Preço
+  const precoEl = document.getElementById('modal-imovel-preco');
+  if (imovel.finalidade === 'aluguel') {
+    precoEl.innerHTML = `R$ ${imovel.precoAluguel.toLocaleString('pt-BR')} <span class="text-sm font-normal text-slate-500">/mês</span>`;
+  } else {
+    precoEl.innerHTML = `R$ ${imovel.preco.toLocaleString('pt-BR')}`;
+  }
+
+  // Custos extras
+  const condEl = document.getElementById('modal-imovel-condominio');
+  if (condEl) condEl.textContent = imovel.condominio > 0 ? `R$ ${imovel.condominio.toLocaleString('pt-BR')}/mês` : 'Isento / Não informado';
+  const iptuEl = document.getElementById('modal-imovel-iptu');
+  if (iptuEl) iptuEl.textContent = imovel.iptu > 0 ? `R$ ${imovel.iptu.toLocaleString('pt-BR')}/mês` : 'Isento';
+
+  // Métricas
+  document.getElementById('modal-area-util').textContent = `${imovel.areaUtil} m²`;
+  document.getElementById('modal-area-total').textContent = `${imovel.areaTotal || imovel.areaUtil} m²`;
+  document.getElementById('modal-quartos').textContent = `${imovel.quartos} (${imovel.suites} suítes)`;
+  document.getElementById('modal-banheiros').textContent = imovel.banheiros;
+  document.getElementById('modal-vagas').textContent = imovel.vagas;
+
+  // Galeria de Fotos
+  const containerFotos = document.getElementById('modal-galeria-fotos');
+  const fotos = (imovel.fotos && imovel.fotos.length > 0) ? imovel.fotos : [imovel.fotoPrincipal];
+  if (containerFotos) {
+    containerFotos.innerHTML = `
+      <div class="relative h-64 sm:h-96 rounded-2xl overflow-hidden mb-3 bg-slate-900 shadow-inner">
+        <img id="modal-foto-destaque" src="${fotos[0]}" alt="${imovel.titulo}" class="w-full h-full object-cover">
+      </div>
+      <div class="flex items-center gap-2 overflow-x-auto pb-2">
+        ${fotos.map((f, idx) => `
+          <button onclick="trocarFotoDestaqueModal('${f}')" class="w-20 h-14 rounded-lg overflow-hidden border-2 ${idx === 0 ? 'border-blue-600' : 'border-transparent'} flex-shrink-0 opacity-80 hover:opacity-100 transition focus:outline-none">
+            <img src="${f}" class="w-full h-full object-cover">
+          </button>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // Diferenciais / Comodidades
+  const listaDiferenciais = document.getElementById('modal-lista-diferenciais');
+  if (listaDiferenciais) {
+    const itens = imovel.diferenciais || [
+      'Varanda Gourmet',
+      'Piscina Privativa ou no Condomínio',
+      'Segurança 24 Horas',
+      'Excelente Localização'
+    ];
+    listaDiferenciais.innerHTML = itens.map(item => `
+      <li class="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200/80 px-3 py-2 rounded-xl">
+        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span>${item}</span>
+      </li>
+    `).join('');
+  }
+
+  // Prepara Simulador de Financiamento
+  configurarSimuladorModal(imovel);
+
+  // Botões de Ação Direta
+  const config = DB.getConfig();
+  const btnWaVisita = document.getElementById('btn-modal-wa-visita');
+  if (btnWaVisita) {
+    btnWaVisita.href = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Quero agendar uma visita presencial para conhecer o imóvel ${imovel.codigo} - ${imovel.titulo}.`)}`;
+  }
+
+  modal.classList.add('active');
+}
+
+function trocarFotoDestaqueModal(url) {
+  const img = document.getElementById('modal-foto-destaque');
+  if (img) img.src = url;
+}
+
+/**
+ * 9. Simulador de Financiamento Imobiliário Interativo
+ */
+function configurarSimuladorModal(imovel) {
+  const valorBase = imovel.finalidade === 'aluguel' ? (imovel.preco || 500000) : imovel.preco;
+  const inputValorImovel = document.getElementById('sim-valor-imovel');
+  const inputEntrada = document.getElementById('sim-entrada');
+  const selectPrazo = document.getElementById('sim-prazo');
+
+  if (inputValorImovel) inputValorImovel.value = valorBase;
+  if (inputEntrada) inputEntrada.value = Math.round(valorBase * 0.20); // 20% padrão de entrada
+
+  calcularSimulacao();
+
+  [inputValorImovel, inputEntrada, selectPrazo].forEach(el => {
+    if (el) el.addEventListener('input', calcularSimulacao);
+  });
+}
+
+function calcularSimulacao() {
+  const valorImovel = parseFloat(document.getElementById('sim-valor-imovel')?.value) || 0;
+  const entrada = parseFloat(document.getElementById('sim-entrada')?.value) || 0;
+  const prazoMeses = parseInt(document.getElementById('sim-prazo')?.value) || 360;
+
+  const valorFinanciado = Math.max(0, valorImovel - entrada);
+  const taxaAnual = 0.099; // 9.9% ao ano estimada média dos grandes bancos
+  const taxaMensal = Math.pow(1 + taxaAnual, 1 / 12) - 1;
+
+  // Cálculo Tabela SAC (Primeira e Última parcela)
+  const amortizacaoMensal = valorFinanciado / prazoMeses;
+  const jurosPrimeiroMes = valorFinanciado * taxaMensal;
+  const primeiraParcelaSAC = amortizacaoMensal + jurosPrimeiroMes;
+  const ultimaParcelaSAC = amortizacaoMensal + (amortizacaoMensal * taxaMensal);
+
+  // Exibe no HTML
+  const elFinanciado = document.getElementById('sim-resultado-financiado');
+  const elPrimeira = document.getElementById('sim-resultado-primeira');
+  const elUltima = document.getElementById('sim-resultado-ultima');
+
+  if (elFinanciado) elFinanciado.textContent = `R$ ${Math.round(valorFinanciado).toLocaleString('pt-BR')}`;
+  if (elPrimeira) elPrimeira.textContent = `R$ ${Math.round(primeiraParcelaSAC).toLocaleString('pt-BR')}`;
+  if (elUltima) elUltima.textContent = `R$ ${Math.round(ultimaParcelaSAC).toLocaleString('pt-BR')}`;
+
+  // Atualiza botão de envio da simulação via WhatsApp
+  const btnEnvioWa = document.getElementById('btn-enviar-simulacao-wa');
+  if (btnEnvioWa && imovelModalAtual) {
+    const textoWa = `Olá! Fiz uma simulação de financiamento no site para o imóvel ${imovelModalAtual.codigo} (${imovelModalAtual.titulo}):
+- Valor do Imóvel: R$ ${valorImovel.toLocaleString('pt-BR')}
+- Entrada pretendida: R$ ${entrada.toLocaleString('pt-BR')}
+- Valor Financiado: R$ ${Math.round(valorFinanciado).toLocaleString('pt-BR')} em ${prazoMeses} meses.
+Gostaria de uma análise bancária oficial com os corretores da ${DB.getConfig().nome}.`;
+    btnEnvioWa.href = `https://wa.me/${DB.getConfig().whatsapp}?text=${encodeURIComponent(textoWa)}`;
+  }
+}
+
+/**
+ * 10. Formulário de Captação de Proprietários ("Venda ou Avalie seu Imóvel")
+ */
+function configurarFormularioProprietario() {
+  const form = document.getElementById('form-proprietario');
+  if (!form) return;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const nome = document.getElementById('prop-nome')?.value || '';
+    const whatsapp = document.getElementById('prop-whatsapp')?.value || '';
+    const tipo = document.getElementById('prop-tipo')?.value || 'Apartamento';
+    const bairro = document.getElementById('prop-bairro')?.value || '';
+    const finalidade = document.getElementById('prop-finalidade')?.value || 'Venda';
+    const valorPretendido = document.getElementById('prop-valor')?.value || 'Não informado';
+
+    // Salva no CRM do SaaS
+    const novoLead = {
+      nome: nome,
+      whatsapp: whatsapp,
+      email: '',
+      imovelCodigo: 'NOVO-CADASTRO',
+      imovelTitulo: `Captação de Proprietário (${tipo} em ${bairro})`,
+      tipoInteresse: `Avaliação para ${finalidade}`,
+      mensagem: `Proprietário deseja avaliar/cadastrar imóvel: ${tipo} no bairro ${bairro}. Valor pretendido: ${valorPretendido}.`,
+      status: 'Novo',
+      valorProposta: valorPretendido
+    };
+
+    DB.adicionarLead(novoLead);
+
+    // Notificação visual e redirecionamento suave para WhatsApp
+    const mensagemFeedback = document.getElementById('prop-feedback');
+    if (mensagemFeedback) {
+      mensagemFeedback.classList.remove('hidden');
+      mensagemFeedback.textContent = 'Solicitação enviada com sucesso! Redirecionando para o WhatsApp do nosso avaliador...';
+    }
+
+    setTimeout(() => {
+      const textoWa = `Olá! Gostaria de uma avaliação para anunciar meu imóvel com a ${DB.getConfig().nome}:
+- Nome: ${nome}
+- Tipo: ${tipo}
+- Bairro: ${bairro}
+- Finalidade: ${finalidade}
+- Valor estimado: ${valorPretendido}`;
+      window.open(`https://wa.me/${DB.getConfig().whatsapp}?text=${encodeURIComponent(textoWa)}`, '_blank');
+      form.reset();
+    }, 1200);
+  });
+}
+
+window.abrirModalImovel = abrirModalImovel;
+window.trocarFotoDestaqueModal = trocarFotoDestaqueModal;
+window.limparFiltros = limparFiltros;

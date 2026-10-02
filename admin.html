@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaaS Gestão Imobiliária & CRM | Impacto Digital</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
+
+  <!-- ========================================================================= -->
+  <!-- TELA DE LOGIN DO SAAS                                                     -->
+  <!-- ========================================================================= -->
+  <section id="secao-login" class="flex-grow flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-200 text-center space-y-6">
+      
+      <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg shadow-blue-600/30">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      </div>
+
+      <div>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Painel do Corretor & SaaS</h1>
+        <p class="text-xs text-slate-500 mt-1">Gestão de catálogo imobiliário, leads e configurações</p>
+      </div>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-2xl p-3 text-left text-xs text-blue-900 space-y-1">
+        <span class="font-bold flex items-center gap-1.5 text-blue-700">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          Modo Demonstração (Impacto Digital):
+        </span>
+        <p class="text-[11px] text-blue-800">Senha padrão para teste do cliente: <strong class="font-mono bg-blue-100 px-1 py-0.5 rounded">admin123</strong></p>
+      </div>
+
+      <form id="form-login-admin" class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Senha de Acesso</label>
+          <input 
+            type="password" 
+            id="input-senha-admin" 
+            placeholder="Digite a senha..." 
+            required 
+            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
+          >
+        </div>
+
+        <div id="login-erro" class="hidden text-xs font-bold text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-200 text-center">
+          Senha incorreta! Digite <code class="font-mono">admin123</code>.
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3 px-4 rounded-xl transition shadow-md shadow-blue-600/20">
+          Entrar no Painel Administrativo
+        </button>
+      </form>
+
+      <div class="text-[11px] text-slate-400">
+        Desenvolvido no padrão Ricardo & Severino • Impacto Digital
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- PAINEL ADMINISTRATIVO PRINCIPAL (PROTEGIDO POR SESSÃO)                    -->
+  <!-- ========================================================================= -->
+  <div id="painel-admin-conteudo" class="hidden flex-col min-h-screen">
+    
+    <!-- Topbar do SaaS -->
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 sticky top-0 z-30 shadow-sm flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+          P
+        </div>
+        <div>
+          <span class="font-black text-slate-900 text-base leading-none block">
+            PRIME <span class="text-blue-600">IMÓVEIS</span> <span class="text-[10px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded">SaaS Pro</span>
+          </span>
+          <span class="text-[11px] text-slate-500 font-medium">Painel de Controle Imobiliário</span>
+        </div>
+      </div>
+
+      <!-- Links Rápidos para Ver os Sites / Sair -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs text-slate-400 hidden md:inline">Ver no Site:</span>
+        <a href="index.html" target="_blank" class="text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition">
+          🏢 Portal
+        </a>
+        <a href="template-luxo.html" target="_blank" class="text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition">
+          ✨ Luxo
+        </a>
+        <a href="template-clean.html" target="_blank" class="text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition">
+          ⚡ Clean
+        </a>
+        <a href="template-lancamentos.html" target="_blank" class="text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition">
+          🏗️ Lançamentos
+        </a>
+        <button id="btn-logout" class="text-xs font-bold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition ml-2 border border-rose-200">
+          Sair
+        </button>
+      </div>
+    </header>
+
+    <!-- Navegação de Abas do SaaS -->
+    <div class="bg-white border-b border-slate-200 px-4 sm:px-8">
+      <nav class="flex items-center gap-1 overflow-x-auto py-2">
+        <button data-tab="aba-dashboard" class="tab-admin-nav bg-blue-600 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-sm">
+          <span>📊 Dashboard & Métricas</span>
+        </button>
+        <button data-tab="aba-imoveis" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
+          <span>🏢 Gerenciar Imóveis</span>
+        </button>
+        <button data-tab="aba-leads" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
+          <span>🎯 CRM de Leads & Propostas</span>
+        </button>
+        <button data-tab="aba-config" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
+          <span>⚙️ Configurações White-Label</span>
+        </button>
+        <button data-tab="aba-backup" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
+          <span>💾 Backup & Reset</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Conteúdo Principal do SaaS -->
+    <main class="flex-grow p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-8">
+      
+      <!-- ===================================================================== -->
+      <!-- ABA 1: DASHBOARD & MÉTRICAS EM TEMPO REAL                             -->
+      <!-- ===================================================================== -->
+      <section id="aba-dashboard" class="painel-aba-conteudo space-y-6">
+        
+        <!-- Cards de Métricas -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total de Imóveis</span>
+            <span id="dash-total-imoveis" class="text-2xl font-black text-slate-900 mt-1 block">0</span>
+            <span class="text-[11px] text-slate-500 font-semibold mt-1 block">No Portfólio</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Para Venda</span>
+            <span id="dash-imoveis-venda" class="text-2xl font-black text-blue-600 mt-1 block">0</span>
+            <span class="text-[11px] text-slate-500 font-semibold mt-1 block">Prontos / Lançamentos</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Para Locação</span>
+            <span id="dash-imoveis-aluguel" class="text-2xl font-black text-emerald-600 mt-1 block">0</span>
+            <span class="text-[11px] text-slate-500 font-semibold mt-1 block">Disponíveis</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Valor em Carteira</span>
+            <span id="dash-valor-carteira" class="text-2xl font-black text-purple-600 mt-1 block">R$ 0</span>
+            <span class="text-[11px] text-slate-500 font-semibold mt-1 block">VGV Estimado</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm col-span-2 sm:col-span-1">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Leads & Propostas</span>
+            <span id="dash-total-leads" class="text-2xl font-black text-amber-600 mt-1 block">0</span>
+            <span id="dash-leads-novos" class="text-[11px] text-emerald-600 font-bold mt-1 block">0 novos</span>
+          </div>
+        </div>
+
+        <!-- Oportunidades e Leads Recentes -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-lg">Últimos Leads Recebidos pelo Site</h3>
+              <p class="text-xs text-slate-500">Clientes que solicitaram visita, simulação ou avaliação</p>
+            </div>
+            <button onclick="document.querySelector('.tab-admin-nav[data-tab=\'aba-leads\']').click()" class="text-xs font-bold text-blue-600 hover:underline">
+              Ver Todos os Leads →
+            </button>
+          </div>
+
+          <div id="dash-ultimos-leads" class="space-y-3">
+            <!-- Inserido dinamicamente via JS -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 2: GERENCIAR IMÓVEIS (CRUD COMPLETO)                              -->
+      <!-- ===================================================================== -->
+      <section id="aba-imoveis" class="painel-aba-conteudo hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Catálogo de Imóveis</h2>
+            <p class="text-xs text-slate-500">Cadastre, edite fotos, altere valores ou pause imóveis já vendidos</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input 
+              type="text" 
+              id="busca-admin-imoveis" 
+              placeholder="Buscar por código, título ou bairro..." 
+              class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 shadow-sm"
+            >
+            <button id="btn-abrir-modal-novo-imovel" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5">
+              <span>+ Novo Imóvel</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela de Imóveis -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Foto</th>
+                  <th class="py-3 px-4">Código</th>
+                  <th class="py-3 px-4">Título / Características</th>
+                  <th class="py-3 px-4">Finalidade</th>
+                  <th class="py-3 px-4">Valor</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-imoveis-corpo" class="text-xs">
+                <!-- Populado dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 3: CRM DE LEADS & PROPOSTAS                                      -->
+      <!-- ===================================================================== -->
+      <section id="aba-leads" class="painel-aba-conteudo hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Pipeline de Leads & Propostas</h2>
+            <p class="text-xs text-slate-500">Acompanhe interessados capturados pelo botão de WhatsApp e formulários</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button id="btn-exportar-leads-csv" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Exportar para Excel (CSV)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela do CRM -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Data</th>
+                  <th class="py-3 px-4">Nome do Lead / WhatsApp</th>
+                  <th class="py-3 px-4">Imóvel / Interesse</th>
+                  <th class="py-3 px-4">Status no CRM</th>
+                  <th class="py-3 px-4 text-right">Ação Direta</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-leads-corpo" class="text-xs">
+                <!-- Populado dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 4: CONFIGURAÇÕES DA IMOBILIÁRIA (WHITE-LABEL)                     -->
+      <!-- ===================================================================== -->
+      <section id="aba-config" class="painel-aba-conteudo hidden space-y-6">
+        
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Identidade da Imobiliária (White-Label)</h2>
+          <p class="text-xs text-slate-500">Altere os dados para adaptar o site para qualquer cliente imobiliário</p>
+        </div>
+
+        <form id="form-config-imobiliaria" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome da Imobiliária</label>
+              <input type="text" id="cfg-nome" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">CRECI Jurídico</label>
+              <input type="text" id="cfg-creci" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Telefone Fixo</label>
+              <input type="text" id="cfg-telefone" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Slogan Institucional</label>
+            <input type="text" id="cfg-slogan" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp de Vendas (com DDI/DDD)</label>
+              <input type="text" id="cfg-whatsapp" required placeholder="5511970558412" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">E-mail de Contato</label>
+              <input type="email" id="cfg-email" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade / Estado</label>
+              <input type="text" id="cfg-cidade" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Endereço Completo</label>
+              <input type="text" id="cfg-endereco" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL do Google Maps Embed</label>
+              <input type="text" id="cfg-maps-url" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Horários de Atendimento Comercial (Alimentam o Botão WhatsApp Online) -->
+          <div class="border-t border-slate-200 pt-4">
+            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Horários para Status de Atendimento Online</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">Seg-Sex Início (h)</label>
+                <input type="number" step="0.5" id="cfg-hora-semana-inicio" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold">
+              </div>
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">Seg-Sex Término (h)</label>
+                <input type="number" step="0.5" id="cfg-hora-semana-fim" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold">
+              </div>
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">Sábado Início (h)</label>
+                <input type="number" step="0.5" id="cfg-hora-sabado-inicio" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold">
+              </div>
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">Sábado Término (h)</label>
+                <input type="number" step="0.5" id="cfg-hora-sabado-fim" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold">
+              </div>
+            </div>
+          </div>
+
+          <!-- Redes Sociais & Webhook n8n -->
+          <div class="border-t border-slate-200 pt-4 space-y-4">
+            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Redes Sociais & Automação n8n</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">Instagram URL</label>
+                <input type="text" id="cfg-instagram" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5">
+              </div>
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">Facebook URL</label>
+                <input type="text" id="cfg-facebook" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5">
+              </div>
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">YouTube URL</label>
+                <input type="text" id="cfg-youtube" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5">
+              </div>
+              <div>
+                <label class="block text-slate-500 font-semibold mb-1">TikTok URL</label>
+                <input type="text" id="cfg-tiktok" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Webhook de Leads (n8n / CRM / Zapier)</label>
+              <input type="text" id="cfg-webhook" placeholder="Ex: https://n8n.seu-dominio.com/webhook/lead-imob" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800">
+              <span class="text-[10px] text-slate-400 mt-1 block">Todo novo lead capturado no site será enviado automaticamente em formato JSON para esta URL.</span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-200 flex justify-end">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-8 py-3 rounded-xl transition shadow-md">
+              Salvar Alterações
+            </button>
+          </div>
+
+        </form>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 5: BACKUP & RESET                                                -->
+      <!-- ===================================================================== -->
+      <section id="aba-backup" class="painel-aba-conteudo hidden space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Segurança de Dados e Demonstração</h2>
+          <p class="text-xs text-slate-500">Exporte backups ou resete o catálogo para apresentar a um novo cliente</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-slate-900 text-base">Exportar Backup JSON</h3>
+            <p class="text-xs text-slate-500">Baixe um arquivo contendo todos os imóveis, configurações e leads do CRM para salvar no seu computador.</p>
+            <button id="btn-exportar-backup" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition">
+              Baixar Backup Completo
+            </button>
+          </div>
+
+          <div class="bg-white p-6 rounded-3xl border border-rose-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-rose-700 text-base">Restaurar Catálogo de Demonstração</h3>
+            <p class="text-xs text-slate-500">Restaura a base padrão com as fotos de alto luxo, coberturas e leads de exemplo caso você queira demonstrar a um novo cliente.</p>
+            <button id="btn-restaurar-padroes" class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition">
+              Restaurar Base de Demonstração
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE CADASTRO / EDIÇÃO DE IMÓVEL                                      -->
+  <!-- ========================================================================= -->
+  <div id="modal-cadastro-imovel" class="modal-overlay">
+    <div class="modal-content relative !max-w-4xl p-6 sm:p-8 space-y-6">
+      
+      <button id="btn-fechar-modal-cadastro" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div>
+        <h3 id="modal-cadastro-titulo" class="text-xl font-black text-slate-900">Cadastrar Novo Imóvel</h3>
+        <p class="text-xs text-slate-500">Preencha as características para publicar instantaneamente nos templates do site.</p>
+      </div>
+
+      <form id="form-salvar-imovel" class="space-y-4 text-xs">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Código de Referência</label>
+            <input type="text" id="input-imob-codigo" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 font-bold text-blue-600">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-bold text-slate-700 uppercase mb-1">Título do Imóvel</label>
+            <input type="text" id="input-imob-titulo" required placeholder="Ex: Cobertura Duplex com Piscina" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Status</label>
+            <select id="input-imob-status" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 font-bold">
+              <option value="disponivel">Disponível</option>
+              <option value="reservado">Reservado</option>
+              <option value="vendido">Vendido</option>
+              <option value="alugado">Alugado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Tipo de Imóvel</label>
+            <select id="input-imob-tipo" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+              <option value="apartamento">Apartamento</option>
+              <option value="cobertura">Cobertura</option>
+              <option value="casa">Casa / Sobrado</option>
+              <option value="condominio">Casa em Condomínio</option>
+              <option value="lancamento">Lançamento na Planta</option>
+              <option value="comercial">Comercial / Laje</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Finalidade</label>
+            <select id="input-imob-finalidade" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 font-bold">
+              <option value="venda">Venda</option>
+              <option value="aluguel">Aluguel</option>
+              <option value="lancamento">Lançamento</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Bairro</label>
+            <input type="text" id="input-imob-bairro" required placeholder="Ex: Campestre" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Endereço (Rua e Número aproximado)</label>
+            <input type="text" id="input-imob-endereco" placeholder="Ex: Rua das Figueiras, 1100" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Cidade / Estado</label>
+            <input type="text" id="input-imob-cidade" value="Santo André - SP" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+          </div>
+        </div>
+
+        <!-- Valores Financeiros -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Valor Venda (R$)</label>
+            <input type="number" id="input-imob-preco" placeholder="0" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-blue-600">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Valor Aluguel (R$/mês)</label>
+            <input type="number" id="input-imob-preco-aluguel" placeholder="0" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-emerald-600">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Condomínio (R$)</label>
+            <input type="number" id="input-imob-condominio" placeholder="0" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">IPTU Mensal (R$)</label>
+            <input type="number" id="input-imob-iptu" placeholder="0" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5">
+          </div>
+        </div>
+
+        <!-- Dimensões e Cômodos -->
+        <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Área Útil (m²)</label>
+            <input type="number" id="input-imob-area-util" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Área Total (m²)</label>
+            <input type="number" id="input-imob-area-total" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Quartos</label>
+            <input type="number" id="input-imob-quartos" value="3" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Suítes</label>
+            <input type="number" id="input-imob-suites" value="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Banheiros</label>
+            <input type="number" id="input-imob-banheiros" value="2" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Vagas</label>
+            <input type="number" id="input-imob-vagas" value="2" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 font-bold">
+          </div>
+        </div>
+
+        <!-- Fotos -->
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">URL da Foto Principal (Capa)</label>
+          <input type="url" id="input-imob-foto-principal" placeholder="https://..." class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Fotos da Galeria (Cole 1 link por linha)</label>
+          <textarea id="input-imob-fotos" rows="3" placeholder="https://...&#10;https://...&#10;https://..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-mono text-[11px]"></textarea>
+        </div>
+
+        <!-- Tags e Diferenciais -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Tags de Destaque (separadas por vírgula)</label>
+            <input type="text" id="input-imob-tags" placeholder="Ex: Alto Padrão, Vista Livre, Varanda Gourmet" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Diferenciais e Lazer (separados por vírgula)</label>
+            <input type="text" id="input-imob-diferenciais" placeholder="Ex: Piscina Aquecida, Academia, Spa, Portaria 24h" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2">
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Descrição Comercial Completa</label>
+          <textarea id="input-imob-descricao" rows="4" placeholder="Descreva os diferenciais, acabamento, vista e localização..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="input-imob-destaque" class="w-4 h-4 text-blue-600 rounded">
+          <label for="input-imob-destaque" class="font-bold text-slate-800">Exibir como Imóvel em Destaque na Página Inicial</label>
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 flex justify-end gap-3">
+          <button type="button" onclick="document.getElementById('modal-cadastro-imovel').classList.remove('active')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl transition shadow">
+            Salvar Imóvel
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/db.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
