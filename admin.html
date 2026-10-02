@@ -431,6 +431,47 @@
 
         </div>
 
+        <!-- Relatório em Tempo Real: Status de Publicação por Imóvel nos Portais -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>📡 Monitoramento de Publicação & Despublicação nos Portais</span>
+              </h3>
+              <p class="text-xs text-slate-500">Acompanhe quais imóveis estão no ar e quais foram despublicados automaticamente após a venda.</p>
+            </div>
+            <div id="resumo-sincronizacao-portais" class="text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl">
+              Calculando sincronização...
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Código / Imóvel</th>
+                  <th class="py-3 px-4">Status no CRM</th>
+                  <th class="py-3 px-4">Status nos Portais (ZAP, VivaReal, OLX)</th>
+                  <th class="py-3 px-4 text-right">Proteção & Economia</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-portais-sincronizacao-linhas">
+                <!-- Inserido dinamicamente via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl text-xs text-blue-900 leading-relaxed flex items-start gap-3">
+            <span class="text-xl">🛡️</span>
+            <div>
+              <strong>Como Funciona a Proteção Automática de Portais:</strong>
+              <p class="text-slate-600 mt-0.5 text-[11px]">
+                Ao alterar o status de um imóvel para <strong>Vendido</strong> ou <strong>Alugado</strong> no CRM, o Feed XML oficial é atualizado instantaneamente com <code>&lt;Status&gt;Inativo&lt;/Status&gt;</code> e <code>&lt;Disponibilidade&gt;0&lt;/Disponibilidade&gt;</code>. Na leitura automática periódica dos portais (ZAP, VivaReal, OLX, Imovelweb), o anúncio é despublicado do ar, economizando o saldo de anúncios da imobiliária e impedindo que corretores percam tempo atendendo leads de imóveis já negociados.
+              </p>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- ===================================================================== -->
@@ -1486,6 +1527,10 @@
         <!-- Inserido dinamicamente via JS -->
       </div>
     </div>
+  <!-- Toast de Notificação e Feedback em Tempo Real -->
+  <div id="toast-notificacao-global" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white font-bold text-xs sm:text-sm px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3">
+    <span id="toast-icone">✅</span>
+    <span id="toast-mensagem">Atualização realizada com sucesso!</span>
   </div>
 
   <!-- Scripts -->

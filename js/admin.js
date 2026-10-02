@@ -114,6 +114,7 @@ function exibirPainelPrincipal() {
   renderizarRoletaCorretores();
   renderizarGestaoLocacao();
   renderizarVistoriasDigitais();
+  renderizarTabelaPortaisSincronizacao();
   carregarSofiaConfigNoPainel();
   carregarFormularioConfig();
   atualizarStatusPortaisNaTela();
@@ -169,6 +170,7 @@ function configurarNavegacaoAbas() {
       document.getElementById(targetId)?.classList.remove('hidden');
 
       if (targetId === 'aba-imoveis') renderizarTabelaImoveis();
+      if (targetId === 'aba-portais') renderizarTabelaPortaisSincronizacao();
       if (targetId === 'aba-leads') {
         renderizarPipelineKanban();
         renderizarTabelaLeads();
@@ -330,8 +332,20 @@ function renderizarTabelaImoveis() {
 }
 
 function alterarStatusImovelRapido(id, novoStatus) {
-  DB.atualizarImovel(id, { status: novoStatus });
+  const im = DB.atualizarImovel(id, { status: novoStatus });
   carregarMetricasDashboard();
+  renderizarTabelaImoveis();
+  renderizarTabelaPortaisSincronizacao();
+
+  if (novoStatus === 'vendido') {
+    mostrarToastFeedback(`🎉 Imóvel ${im?.codigo || ''} marcado como VENDIDO! O site exibe o selo VENDIDO e os portais (ZAP, VivaReal) foram despublicados automaticamente.`, '🏆');
+  } else if (novoStatus === 'alugado') {
+    mostrarToastFeedback(`🔑 Imóvel ${im?.codigo || ''} marcado como ALUGADO! Despublicado dos portais para economizar seus anúncios.`, '🔑');
+  } else if (novoStatus === 'reservado') {
+    mostrarToastFeedback(`⏳ Imóvel ${im?.codigo || ''} marcado como RESERVADO!`, '⏳');
+  } else {
+    mostrarToastFeedback(`✅ Imóvel ${im?.codigo || ''} marcado como DISPONÍVEL! Publicado no site e sincronizado nos portais.`, '✅');
+  }
 }
 
 function excluirImovel(id) {
@@ -841,6 +855,93 @@ function configurarAbaPortais() {
     link.download = `carga_portais_imobiliaria_${new Date().toISOString().slice(0, 10)}.xml`;
     link.click();
   });
+
+  renderizarTabelaPortaisSincronizacao();
+}
+
+function renderizarTabelaPortaisSincronizacao() {
+  const tbody = document.getElementById('tabela-portais-sincronizacao-linhas');
+  const resumo = document.getElementById('resumo-sincronizacao-portais');
+  if (!tbody) return;
+
+  const imoveis = DB.getImoveis();
+  const ativos = imoveis.filter(im => !im.status || im.status === 'disponivel');
+  const despublicados = imoveis.filter(im => im.status === 'vendido' || im.status === 'alugado');
+  const reservados = imoveis.filter(im => im.status === 'reservado');
+
+  if (resumo) {
+    resumo.innerHTML = `
+      <span class="text-emerald-700 font-bold">${ativos.length} no ar</span> • 
+      <span class="text-rose-700 font-bold">${despublicados.length} despublicados (vendidos/alugados)</span> • 
+      <span class="text-amber-700 font-bold">${reservados.length} reservados</span>
+    `;
+  }
+
+  if (imoveis.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400">Nenhum imóvel cadastrado.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = imoveis.map(im => {
+    const isVendido = im.status === 'vendido';
+    const isAlugado = im.status === 'alugado';
+    const isReservado = im.status === 'reservado';
+
+    let statusCrmBadge = '<span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">Disponível</span>';
+    let statusPortaisHtml = '<span class="text-emerald-700 font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Ativo & Sincronizado nos Portais</span>';
+    let economiaTexto = '<span class="text-slate-400">Padrão Ativo</span>';
+
+    if (isVendido) {
+      statusCrmBadge = '<span class="bg-rose-100 text-rose-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">Vendido</span>';
+      statusPortaisHtml = '<span class="text-rose-700 font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span> 🛑 Despublicado Automaticamente</span>';
+      economiaTexto = '<span class="font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">Zero Custo / Sem Ligações</span>';
+    } else if (isAlugado) {
+      statusCrmBadge = '<span class="bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">Alugado</span>';
+      statusPortaisHtml = '<span class="text-indigo-700 font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> 🛑 Despublicado Automaticamente</span>';
+      economiaTexto = '<span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">Anúncio Poupado</span>';
+    } else if (isReservado) {
+      statusCrmBadge = '<span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">Reservado</span>';
+      statusPortaisHtml = '<span class="text-amber-700 font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> ⏳ Pausado nos Portais</span>';
+      economiaTexto = '<span class="text-amber-600">Aguardando Conclusão</span>';
+    }
+
+    return `
+      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+        <td class="py-3 px-4">
+          <div class="font-bold text-slate-900">${im.codigo}</div>
+          <div class="text-[11px] text-slate-500 truncate max-w-xs">${im.titulo} (${im.bairro})</div>
+        </td>
+        <td class="py-3 px-4">
+          ${statusCrmBadge}
+        </td>
+        <td class="py-3 px-4">
+          ${statusPortaisHtml}
+        </td>
+        <td class="py-3 px-4 text-right">
+          ${economiaTexto}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function mostrarToastFeedback(mensagem, icone = '✅') {
+  const toast = document.getElementById('toast-notificacao-global');
+  const txt = document.getElementById('toast-mensagem');
+  const ico = document.getElementById('toast-icone');
+  if (!toast || !txt) return;
+
+  txt.textContent = mensagem;
+  if (ico) ico.textContent = icone;
+
+  toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+  toast.classList.add('translate-y-0', 'opacity-100');
+
+  clearTimeout(window.__toastTimeout);
+  window.__toastTimeout = setTimeout(() => {
+    toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+    toast.classList.remove('translate-y-0', 'opacity-100');
+  }, 4500);
 }
 
 function atualizarStatusPortaisNaTela() {
@@ -1620,4 +1721,6 @@ window.allowDropKanban = allowDropKanban;
 window.dropKanbanLead = dropKanbanLead;
 window.comprimirImagem = comprimirImagem;
 window.sanitizarNumero = sanitizarNumero;
+window.renderizarTabelaPortaisSincronizacao = renderizarTabelaPortaisSincronizacao;
+window.mostrarToastFeedback = mostrarToastFeedback;
 

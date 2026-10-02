@@ -3,6 +3,9 @@
   <Imoveis>
     <Imovel>
       <CodigoImovel>CB-9021</CodigoImovel>
+      <Status>Inativo</Status>
+      <Situacao>VENDIDO</Situacao>
+      <Disponivel>0</Disponivel>
       <TipoImovel>Cobertura</TipoImovel>
       <SubTipoImovel>Duplex</SubTipoImovel>
       <CategoriaImovel>Residencial</CategoriaImovel>
@@ -36,6 +39,9 @@
     </Imovel>
     <Imovel>
       <CodigoImovel>AP-4102</CodigoImovel>
+      <Status>Ativo</Status>
+      <Situacao>DISPONIVEL</Situacao>
+      <Disponivel>1</Disponivel>
       <TipoImovel>Apartamento</TipoImovel>
       <SubTipoImovel>Padrão</SubTipoImovel>
       <CategoriaImovel>Residencial</CategoriaImovel>
@@ -64,6 +70,9 @@
     </Imovel>
     <Imovel>
       <CodigoImovel>CS-8830</CodigoImovel>
+      <Status>Ativo</Status>
+      <Situacao>DISPONIVEL</Situacao>
+      <Disponivel>1</Disponivel>
       <TipoImovel>Condominio</TipoImovel>
       <SubTipoImovel>Casa em Condomínio</SubTipoImovel>
       <CategoriaImovel>Residencial</CategoriaImovel>
@@ -92,6 +101,9 @@
     </Imovel>
     <Imovel>
       <CodigoImovel>ST-2015</CodigoImovel>
+      <Status>Ativo</Status>
+      <Situacao>DISPONIVEL</Situacao>
+      <Disponivel>1</Disponivel>
       <TipoImovel>Apartamento</TipoImovel>
       <SubTipoImovel>Studio</SubTipoImovel>
       <CategoriaImovel>Residencial</CategoriaImovel>
@@ -120,6 +132,9 @@
     </Imovel>
     <Imovel>
       <CodigoImovel>LC-7700</CodigoImovel>
+      <Status>Ativo</Status>
+      <Situacao>DISPONIVEL</Situacao>
+      <Disponivel>1</Disponivel>
       <TipoImovel>Lancamento</TipoImovel>
       <SubTipoImovel>Empreendimento na Planta</SubTipoImovel>
       <CategoriaImovel>Residencial</CategoriaImovel>

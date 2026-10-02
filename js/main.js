@@ -34,6 +34,19 @@ function initImobiliaria() {
     configurarHorarioWhatsApp();
     configurarWidgetSofiaIA();
   });
+
+  // Sincronização em tempo real entre abas do navegador
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'imob_prime_estoque_v1') {
+      povoarFiltroBairros();
+      aplicarFiltrosEstatisticas();
+    }
+    if (e.key === 'imob_prime_config_v1') {
+      atualizarDadosInstitucionais();
+      configurarHorarioWhatsApp();
+      configurarWidgetSofiaIA();
+    }
+  });
 }
 
 /**
@@ -163,6 +176,7 @@ function aplicarFiltrosEstatisticas() {
   const imoveis = DB.getImoveis();
 
   const termoBusca = (document.getElementById('filtro-termo')?.value || '').toLowerCase().trim();
+  const statusFiltro = document.getElementById('filtro-status')?.value || 'todos';
   const tipo = document.getElementById('filtro-tipo')?.value || '';
   const bairro = document.getElementById('filtro-bairro')?.value || '';
   const quartos = document.getElementById('filtro-quartos')?.value || '';
@@ -171,6 +185,16 @@ function aplicarFiltrosEstatisticas() {
   const ordenacao = document.getElementById('filtro-ordenacao')?.value || 'destaque';
 
   imoveisFiltrados = imoveis.filter(im => {
+    // Filtro de Status (Disponíveis, Vendidos, Alugados, Todos)
+    // Se o usuário digitou uma busca textual (ex: código CB-9021), localiza mesmo que vendido
+    if (!termoBusca && statusFiltro !== 'todos') {
+      if (statusFiltro === 'disponivel') {
+        if (im.status && im.status !== 'disponivel') return false;
+      } else if (im.status !== statusFiltro) {
+        return false;
+      }
+    }
+
     // Finalidade (Venda / Aluguel / Lançamento)
     if (filtroFinalidadeAtual !== 'todos' && im.finalidade !== filtroFinalidadeAtual) {
       return false;
@@ -198,7 +222,7 @@ function aplicarFiltrosEstatisticas() {
 
     // Preço Máximo
     if (precoMax > 0) {
-      const precoComparar = im.finalidade === 'aluguel' ? im.precoAluguel : im.preco;
+      const precoComparar = im.finalidade === 'aluguel' ? (im.precoAluguel || 0) : (im.preco || 0);
       if (precoComparar > precoMax) return false;
     }
 
@@ -213,8 +237,14 @@ function aplicarFiltrosEstatisticas() {
 
   // Ordenação
   imoveisFiltrados.sort((a, b) => {
-    const precoA = a.finalidade === 'aluguel' ? a.precoAluguel : a.preco;
-    const precoB = b.finalidade === 'aluguel' ? b.precoAluguel : b.preco;
+    // Imóveis disponíveis sempre têm prioridade visual sobre vendidos/alugados
+    const aDisponivel = !a.status || a.status === 'disponivel';
+    const bDisponivel = !b.status || b.status === 'disponivel';
+    if (aDisponivel && !bDisponivel) return -1;
+    if (!aDisponivel && bDisponivel) return 1;
+
+    const precoA = a.finalidade === 'aluguel' ? (a.precoAluguel || 0) : (a.preco || 0);
+    const precoB = b.finalidade === 'aluguel' ? (b.precoAluguel || 0) : (b.preco || 0);
 
     if (ordenacao === 'menor_preco') return precoA - precoB;
     if (ordenacao === 'maior_preco') return precoB - precoA;
@@ -253,19 +283,94 @@ function renderizarGridImoveis() {
   }
 
   container.innerHTML = imoveisFiltrados.map(im => {
-    // Formatação de Preço
+    const isVendido = im.status === 'vendido';
+    const isAlugado = im.status === 'alugado';
+    const isReservado = im.status === 'reservado';
+
+    // Formatação de Preço e Badges de Finalidade / Status
     let badgeFinalidade = '';
     let precoFormatado = '';
 
-    if (im.finalidade === 'aluguel') {
+    if (isVendido) {
+      badgeFinalidade = '<span class="property-badge-finalidade badge-vendido">Vendido</span>';
+    } else if (isAlugado) {
+      badgeFinalidade = '<span class="property-badge-finalidade badge-alugado">Alugado</span>';
+    } else if (isReservado) {
+      badgeFinalidade = '<span class="property-badge-finalidade badge-reservado">Reservado</span>';
+    } else if (im.finalidade === 'aluguel') {
       badgeFinalidade = '<span class="property-badge-finalidade badge-aluguel">Aluguel</span>';
-      precoFormatado = `R$ ${(im.precoAluguel || 0).toLocaleString('pt-BR')} <span class="text-xs font-normal text-slate-500">/mês</span>`;
     } else if (im.finalidade === 'lancamento') {
       badgeFinalidade = '<span class="property-badge-finalidade badge-lancamento">Lançamento</span>';
-      precoFormatado = `<span class="text-xs text-slate-500 font-normal block">A partir de</span> R$ ${(im.preco || 0).toLocaleString('pt-BR')}`;
     } else {
       badgeFinalidade = '<span class="property-badge-finalidade badge-venda">Venda</span>';
+    }
+
+    if (im.finalidade === 'aluguel') {
+      precoFormatado = `R$ ${(im.precoAluguel || 0).toLocaleString('pt-BR')} <span class="text-xs font-normal text-slate-500">/mês</span>`;
+    } else if (im.finalidade === 'lancamento') {
+      precoFormatado = `<span class="text-xs text-slate-500 font-normal block">A partir de</span> R$ ${(im.preco || 0).toLocaleString('pt-BR')}`;
+    } else {
       precoFormatado = `R$ ${(im.preco || 0).toLocaleString('pt-BR')}`;
+    }
+
+    // Carimbo sobre a Foto
+    let stampHtml = '';
+    let badgeDestaqueHtml = '';
+
+    if (isVendido) {
+      stampHtml = `
+        <div class="stamp-overlay">
+          <div class="stamp-badge-vendido">
+            ✓ VENDIDO
+          </div>
+        </div>
+      `;
+      badgeDestaqueHtml = '<span class="absolute bottom-3 left-3 bg-rose-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow z-10 flex items-center gap-1">🏆 Vendido com Sucesso</span>';
+    } else if (isAlugado) {
+      stampHtml = `
+        <div class="stamp-overlay">
+          <div class="stamp-badge-alugado">
+            🔑 ALUGADO
+          </div>
+        </div>
+      `;
+      badgeDestaqueHtml = '<span class="absolute bottom-3 left-3 bg-indigo-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow z-10">🔑 Imóvel Alugado</span>';
+    } else if (isReservado) {
+      stampHtml = `
+        <div class="stamp-overlay">
+          <div class="stamp-badge-reservado">
+            ⏳ RESERVADO
+          </div>
+        </div>
+      `;
+      badgeDestaqueHtml = '<span class="absolute bottom-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow z-10">⏳ Em Proposta</span>';
+    } else if (im.destaque) {
+      badgeDestaqueHtml = '<span class="absolute bottom-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow z-10">Destaque Exclusivo</span>';
+    }
+
+    // Status no Preço
+    let statusPrecoBadge = '';
+    if (isVendido) {
+      statusPrecoBadge = '<span class="block text-[11px] font-bold text-rose-600 mt-0.5">● Imóvel Vendido</span>';
+    } else if (isAlugado) {
+      statusPrecoBadge = '<span class="block text-[11px] font-bold text-indigo-600 mt-0.5">● Imóvel Alugado</span>';
+    } else if (isReservado) {
+      statusPrecoBadge = '<span class="block text-[11px] font-bold text-amber-600 mt-0.5">● Em Fase de Proposta</span>';
+    }
+
+    // Botão de WhatsApp Inteligente
+    let waMsg = `Olá! Gostaria de mais informações sobre o imóvel ${im.codigo} - ${im.titulo} (${im.bairro}).`;
+    let waTitle = "Conversar com Corretor no WhatsApp";
+    let waBtnClasses = "bg-emerald-600 hover:bg-emerald-500 text-white";
+
+    if (isVendido) {
+      waMsg = `Olá! Vi no site que o imóvel ${im.codigo} - ${im.titulo} (${im.bairro}) foi VENDIDO. Vocês têm outras opções parecidas disponíveis?`;
+      waTitle = "Consultar Imóveis Semelhantes no WhatsApp";
+      waBtnClasses = "bg-rose-600 hover:bg-rose-500 text-white";
+    } else if (isAlugado) {
+      waMsg = `Olá! Vi no site que o imóvel ${im.codigo} (${im.bairro}) foi ALUGADO. Vocês têm outros imóveis para locação semelhantes?`;
+      waTitle = "Consultar Opções Similares de Locação";
+      waBtnClasses = "bg-indigo-600 hover:bg-indigo-500 text-white";
     }
 
     const tagsHtml = (im.tags || []).slice(0, 2).map(tag => `
@@ -275,10 +380,10 @@ function renderizarGridImoveis() {
     `).join('');
 
     return `
-      <div class="property-card bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm flex flex-col justify-between group">
+      <div class="property-card bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm flex flex-col justify-between group ${isVendido ? 'ring-1 ring-rose-200' : ''}">
         <div>
           <!-- Imagem e Badges -->
-          <div class="relative h-56 sm:h-60 overflow-hidden bg-slate-900 cursor-pointer" onclick="abrirModalImovel('${im.id}')">
+          <div class="relative h-56 sm:h-60 overflow-hidden bg-slate-900 cursor-pointer ${isVendido ? 'grayscale-[20%]' : ''}" onclick="abrirModalImovel('${im.id}')">
             <img 
               src="${im.fotoPrincipal || im.fotos[0]}" 
               alt="${im.titulo}" 
@@ -286,9 +391,10 @@ function renderizarGridImoveis() {
               loading="lazy"
             >
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none"></div>
+            ${stampHtml}
             ${badgeFinalidade}
             <span class="property-badge-code">${im.codigo}</span>
-            ${im.destaque ? '<span class="absolute bottom-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow">Destaque Exclusivo</span>' : ''}
+            ${badgeDestaqueHtml}
           </div>
 
           <!-- Conteúdo -->
@@ -332,6 +438,7 @@ function renderizarGridImoveis() {
               <span class="text-lg font-black text-slate-900 leading-none">
                 ${precoFormatado}
               </span>
+              ${statusPrecoBadge}
               ${(im.condominio || 0) > 0 ? `<span class="block text-[10px] text-slate-400 mt-0.5">Cond. R$ ${(im.condominio || 0).toLocaleString('pt-BR')}</span>` : ''}
             </div>
 
@@ -343,10 +450,10 @@ function renderizarGridImoveis() {
                 Detalhes
               </button>
               <a 
-                href="https://wa.me/${DB.getConfig().whatsapp}?text=${encodeURIComponent(`Olá! Gostaria de mais informações sobre o imóvel ${im.codigo} - ${im.titulo} (${im.bairro}).`)}"
+                href="https://wa.me/${DB.getConfig().whatsapp}?text=${encodeURIComponent(waMsg)}"
                 target="_blank"
-                class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl transition shadow-sm flex items-center justify-center"
-                title="Conversar com Corretor no WhatsApp">
+                class="${waBtnClasses} p-2 rounded-xl transition shadow-sm flex items-center justify-center"
+                title="${waTitle}">
                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
               </a>
             </div>
@@ -386,7 +493,7 @@ function configurarEventosFiltros() {
     });
   });
 
-  const inputs = ['filtro-termo', 'filtro-tipo', 'filtro-bairro', 'filtro-quartos', 'filtro-vagas', 'filtro-preco-max', 'filtro-ordenacao'];
+  const inputs = ['filtro-termo', 'filtro-status', 'filtro-tipo', 'filtro-bairro', 'filtro-quartos', 'filtro-vagas', 'filtro-preco-max', 'filtro-ordenacao'];
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -403,6 +510,8 @@ function limparFiltros() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const selectStatus = document.getElementById('filtro-status');
+  if (selectStatus) selectStatus.value = 'todos';
   filtroFinalidadeAtual = 'todos';
   document.querySelectorAll('.btn-tab-finalidade').forEach(b => {
     b.classList.remove('active', 'bg-blue-600', 'text-white');
@@ -449,12 +558,107 @@ function abrirModalImovel(id) {
   document.getElementById('modal-imovel-endereco').textContent = `${imovel.endereco || ''} - ${imovel.bairro}, ${imovel.cidade}`;
   document.getElementById('modal-imovel-descricao').textContent = imovel.descricao;
 
+  // Banner de Status no Modal (Vendido, Alugado, Reservado)
+  const config = DB.getConfig();
+  const bannerStatus = document.getElementById('modal-imovel-banner-status');
+  if (bannerStatus) {
+    if (imovel.status === 'vendido') {
+      bannerStatus.innerHTML = `
+        <div class="bg-gradient-to-r from-rose-600 to-red-700 text-white p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg border border-red-500 mb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl flex-shrink-0">
+              🏆
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="bg-white text-rose-700 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm">Status Oficial</span>
+                <h3 class="text-base sm:text-lg font-black tracking-tight">ESTE IMÓVEL JÁ FOI VENDIDO!</h3>
+              </div>
+              <p class="text-xs text-rose-100 mt-1 leading-snug">
+                Esta oportunidade exclusiva foi negociada com sucesso pela nossa equipe. Consulte nosso corretor para receber imóveis semelhantes no bairro <strong>${imovel.bairro}</strong>!
+              </p>
+            </div>
+          </div>
+          <a href="https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Vi no site que o imóvel ${imovel.codigo} foi vendido. Vocês têm outras opções parecidas disponíveis?`)}" target="_blank" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-rose-700 font-black text-xs px-5 py-3 rounded-xl transition shadow flex items-center justify-center gap-2 whitespace-nowrap">
+            <span>Ver Imóveis Similares</span>
+            <span>→</span>
+          </a>
+        </div>
+      `;
+      bannerStatus.classList.remove('hidden');
+    } else if (imovel.status === 'alugado') {
+      bannerStatus.innerHTML = `
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-700 text-white p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg border border-indigo-500 mb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl flex-shrink-0">
+              🔑
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="bg-white text-indigo-700 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm">Status Oficial</span>
+                <h3 class="text-base sm:text-lg font-black tracking-tight">ESTE IMÓVEL JÁ FOI ALUGADO!</h3>
+              </div>
+              <p class="text-xs text-indigo-100 mt-1 leading-snug">
+                Este contrato de locação já foi concluído. Fale com nossa equipe para encontrar outras opções para alugar no mesmo perfil.
+              </p>
+            </div>
+          </div>
+          <a href="https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Vi no site que o imóvel ${imovel.codigo} foi alugado. Vocês têm outras opções parecidas para locação?`)}" target="_blank" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-indigo-700 font-black text-xs px-5 py-3 rounded-xl transition shadow flex items-center justify-center gap-2 whitespace-nowrap">
+            <span>Opções Similares</span>
+            <span>→</span>
+          </a>
+        </div>
+      `;
+      bannerStatus.classList.remove('hidden');
+    } else if (imovel.status === 'reservado') {
+      bannerStatus.innerHTML = `
+        <div class="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg border border-amber-400 mb-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-black/10 flex items-center justify-center text-2xl flex-shrink-0">
+              ⏳
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="bg-slate-950 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded">Em Negociação</span>
+                <h3 class="text-base sm:text-lg font-black tracking-tight">IMÓVEL EM FASE DE PROPOSTA / RESERVA</h3>
+              </div>
+              <p class="text-xs text-slate-900 mt-1 leading-snug">
+                Existe uma proposta em análise para esta unidade. Deixe seu contato para ser avisado prioritariamente caso a negociação não se concretize.
+              </p>
+            </div>
+          </div>
+          <a href="https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Gostaria de entrar na lista de reserva do imóvel ${imovel.codigo} (${imovel.titulo}).`)}" target="_blank" class="w-full sm:w-auto bg-slate-950 hover:bg-slate-800 text-white font-black text-xs px-5 py-3 rounded-xl transition shadow flex items-center justify-center gap-2 whitespace-nowrap">
+            <span>Fila de Reserva</span>
+            <span>→</span>
+          </a>
+        </div>
+      `;
+      bannerStatus.classList.remove('hidden');
+    } else {
+      bannerStatus.innerHTML = '';
+      bannerStatus.classList.add('hidden');
+    }
+  }
+
   // Preço
   const precoEl = document.getElementById('modal-imovel-preco');
+  let precoTxt = '';
   if (imovel.finalidade === 'aluguel') {
-    precoEl.innerHTML = `R$ ${(imovel.precoAluguel || 0).toLocaleString('pt-BR')} <span class="text-sm font-normal text-slate-500">/mês</span>`;
+    precoTxt = `R$ ${(imovel.precoAluguel || 0).toLocaleString('pt-BR')} <span class="text-sm font-normal text-slate-500">/mês</span>`;
   } else {
-    precoEl.innerHTML = `R$ ${(imovel.preco || 0).toLocaleString('pt-BR')}`;
+    precoTxt = `R$ ${(imovel.preco || 0).toLocaleString('pt-BR')}`;
+  }
+
+  if (precoEl) {
+    if (imovel.status === 'vendido') {
+      precoEl.innerHTML = `${precoTxt} <span class="text-xs font-black text-white bg-rose-600 px-2.5 py-0.5 rounded-lg uppercase tracking-wider ml-2">Vendido</span>`;
+    } else if (imovel.status === 'alugado') {
+      precoEl.innerHTML = `${precoTxt} <span class="text-xs font-black text-white bg-indigo-600 px-2.5 py-0.5 rounded-lg uppercase tracking-wider ml-2">Alugado</span>`;
+    } else if (imovel.status === 'reservado') {
+      precoEl.innerHTML = `${precoTxt} <span class="text-xs font-black text-slate-950 bg-amber-400 px-2.5 py-0.5 rounded-lg uppercase tracking-wider ml-2">Reservado</span>`;
+    } else {
+      precoEl.innerHTML = precoTxt;
+    }
   }
 
   // Custos extras
@@ -509,10 +713,21 @@ function abrirModalImovel(id) {
   configurarSimuladorModal(imovel);
 
   // Botões de Ação Direta
-  const config = DB.getConfig();
   const btnWaVisita = document.getElementById('btn-modal-wa-visita');
   if (btnWaVisita) {
-    btnWaVisita.href = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Quero agendar uma visita presencial para conhecer o imóvel ${imovel.codigo} - ${imovel.titulo}.`)}`;
+    if (imovel.status === 'vendido') {
+      btnWaVisita.innerHTML = `<span>💬 Consultar Opções Semelhantes a Este Imóvel no WhatsApp</span>`;
+      btnWaVisita.href = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Vi no site que o imóvel ${imovel.codigo} - ${imovel.titulo} foi VENDIDO. Você tem imóveis semelhantes disponíveis?`)}`;
+      btnWaVisita.className = 'w-full bg-rose-600 hover:bg-rose-700 text-white font-black text-sm sm:text-base py-3.5 px-6 rounded-2xl transition shadow-lg flex items-center justify-center gap-2';
+    } else if (imovel.status === 'alugado') {
+      btnWaVisita.innerHTML = `<span>💬 Consultar Imóveis Semelhantes para Locação</span>`;
+      btnWaVisita.href = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Vi no site que o imóvel ${imovel.codigo} foi ALUGADO. Você tem outras opções para locação no mesmo perfil?`)}`;
+      btnWaVisita.className = 'w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm sm:text-base py-3.5 px-6 rounded-2xl transition shadow-lg flex items-center justify-center gap-2';
+    } else {
+      btnWaVisita.innerHTML = `<span>Agendar Visita com Corretor Especialista</span>`;
+      btnWaVisita.href = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Quero agendar uma visita presencial para conhecer o imóvel ${imovel.codigo} - ${imovel.titulo}.`)}`;
+      btnWaVisita.className = 'w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-sm sm:text-base py-3.5 px-6 rounded-2xl transition shadow-lg flex items-center justify-center gap-2';
+    }
   }
 
   modal.classList.add('active');

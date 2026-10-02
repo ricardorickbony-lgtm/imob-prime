@@ -353,6 +353,12 @@
         <span id="contador-imoveis" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
           Carregando imóveis...
         </span>
+        <select id="filtro-status" class="bg-white border border-slate-200 text-xs font-semibold rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+          <option value="todos" selected>Todos os Status (Disponíveis e Vendidos)</option>
+          <option value="disponivel">Apenas Disponíveis</option>
+          <option value="vendido">Vendidos / Casos de Sucesso</option>
+          <option value="alugado">Alugados</option>
+        </select>
         <select id="filtro-ordenacao" class="bg-white border border-slate-200 text-xs font-semibold rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
           <option value="destaque">Destaques Primeiro</option>
           <option value="menor_preco">Menor Valor</option>
@@ -703,6 +709,9 @@
       <!-- Conteúdo Interno do Modal -->
       <div class="p-6 sm:p-8 space-y-6">
         
+        <!-- Banner de Status (Vendido / Alugado / Reservado) -->
+        <div id="modal-imovel-banner-status" class="hidden"></div>
+
         <!-- Galeria de Fotos Navegável -->
         <div id="modal-galeria-fotos"></div>
 

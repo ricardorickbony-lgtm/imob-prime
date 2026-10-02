@@ -1163,7 +1163,7 @@ ${(imovel.tags || []).map(t => `#${t.replace(/\s+/g, '')}`).join(' ')}
    */
   gerarFeedXmlPortais() {
     const config = this.getConfig();
-    const imoveis = this.getImoveis().filter(im => im.status === 'disponivel');
+    const imoveis = this.getImoveis();
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<Carga xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n`;
@@ -1173,9 +1173,16 @@ ${(imovel.tags || []).map(t => `#${t.replace(/\s+/g, '')}`).join(' ')}
       const precoVenda = im.preco || 0;
       const precoLocacao = im.precoAluguel || 0;
       const tipoTransacao = im.finalidade === 'aluguel' ? 'Locação' : (im.finalidade === 'venda' ? 'Venda' : 'Venda');
+      const isAtivo = (!im.status || im.status === 'disponivel');
+      const statusPortal = isAtivo ? 'Ativo' : 'Inativo';
+      const situacaoPortal = im.status ? im.status.toUpperCase() : 'DISPONIVEL';
+      const dispPortal = isAtivo ? '1' : '0';
 
       xml += `    <Imovel>\n`;
       xml += `      <CodigoImovel>${im.codigo}</CodigoImovel>\n`;
+      xml += `      <Status>${statusPortal}</Status>\n`;
+      xml += `      <Situacao>${situacaoPortal}</Situacao>\n`;
+      xml += `      <Disponivel>${dispPortal}</Disponivel>\n`;
       xml += `      <TipoImovel>${im.tipo.charAt(0).toUpperCase() + im.tipo.slice(1)}</TipoImovel>\n`;
       xml += `      <SubTipoImovel>Padrão</SubTipoImovel>\n`;
       xml += `      <CategoriaImovel>Residencial</CategoriaImovel>\n`;
