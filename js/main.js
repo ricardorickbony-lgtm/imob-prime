@@ -21,6 +21,7 @@ function initImobiliaria() {
   configurarFormularioProprietario();
   configurarBannerCookiesELGPD();
   configurarModalPrivacidade();
+  configurarWidgetSofiaIA();
 
   // Escuta atualizações de estoque e configurações emitidas pelo painel SaaS
   window.addEventListener('imob_dados_atualizados', () => {
@@ -31,6 +32,7 @@ function initImobiliaria() {
   window.addEventListener('imob_config_atualizada', () => {
     atualizarDadosInstitucionais();
     configurarHorarioWhatsApp();
+    configurarWidgetSofiaIA();
   });
 }
 
@@ -768,6 +770,241 @@ function abrirModalPrivacidade() {
   document.getElementById('modal-privacidade')?.classList.add('active');
 }
 
+/**
+ * 13. Widget Flutuante Sofia IA (Consultora Imobiliária 24h - Padrão WideSys)
+ */
+function configurarWidgetSofiaIA() {
+  const sofiaConfig = DB.getSofiaConfig ? DB.getSofiaConfig() : null;
+  if (!sofiaConfig || !sofiaConfig.ativada) {
+    document.getElementById('sofia-ia-widget-container')?.remove();
+    document.getElementById('sofia-chat-box')?.remove();
+    return;
+  }
+
+  const escapeHtml = (str) => {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
+  const formatarMoeda = (val) => {
+    return 'R$ ' + (Number(val) || 0).toLocaleString('pt-BR');
+  };
+
+  // 1. Cria o botão flutuante de abertura se não existir
+  let container = document.getElementById('sofia-ia-widget-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'sofia-ia-widget-container';
+    container.className = 'sofia-ia-widget-container';
+    container.innerHTML = `
+      <button id="btn-abrir-sofia" class="sofia-ia-launcher-btn shadow-2xl" title="Falar com Sofia IA">
+        <div class="relative flex items-center justify-center">
+          <span class="text-lg">✨</span>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+        </div>
+        <div class="text-left sofia-texto-longo">
+          <div class="text-[9px] uppercase font-black tracking-wider text-indigo-200 leading-tight">Inteligência Artificial</div>
+          <div class="flex items-center gap-1.5 leading-tight text-white font-extrabold text-xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="sofia-btn-nome">${escapeHtml(sofiaConfig.nome || 'Sofia IA')} • 24h</span>
+          </div>
+        </div>
+      </button>
+    `;
+    document.body.appendChild(container);
+  }
+
+  // 2. Cria a janela do chat se não existir
+  let chatBox = document.getElementById('sofia-chat-box');
+  if (!chatBox) {
+    chatBox = document.createElement('div');
+    chatBox.id = 'sofia-chat-box';
+    chatBox.className = 'sofia-chat-box';
+    chatBox.innerHTML = `
+      <!-- Header -->
+      <div class="sofia-chat-header">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center font-black shadow-md text-base relative">
+            <span>✨</span>
+            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900"></span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 id="sofia-box-nome" class="font-black text-sm text-white leading-tight">${escapeHtml(sofiaConfig.nome || 'Sofia IA')}</h4>
+              <span class="bg-indigo-500/30 text-indigo-300 text-[9px] font-bold px-1.5 py-0.5 rounded border border-indigo-400/30 uppercase">Online 24h</span>
+            </div>
+            <p id="sofia-box-cargo" class="text-[11px] text-slate-300">${escapeHtml(sofiaConfig.cargo || 'Consultora Virtual de Imóveis')}</p>
+          </div>
+        </div>
+        <button id="btn-fechar-sofia" class="text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center transition cursor-pointer" title="Fechar">✕</button>
+      </div>
+
+      <!-- Messages Area -->
+      <div id="sofia-chat-mensagens" class="sofia-chat-body">
+        <div class="sofia-msg bot">
+          <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs flex-shrink-0 font-bold">✨</div>
+          <div class="sofia-msg-bubble">
+            ${escapeHtml(sofiaConfig.mensagemBoasVindas || 'Olá! Sou a consultora virtual. Como posso ajudar você hoje?')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Chips -->
+      <div class="px-3 py-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
+        <button class="chip-sofia px-2.5 py-1 rounded-full bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold whitespace-nowrap transition cursor-pointer" data-msg="Quero ver coberturas e apartamentos à venda">🏢 Coberturas</button>
+        <button class="chip-sofia px-2.5 py-1 rounded-full bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold whitespace-nowrap transition cursor-pointer" data-msg="Quero opções de imóveis para alugar">🔑 Aluguel</button>
+        <button class="chip-sofia px-2.5 py-1 rounded-full bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold whitespace-nowrap transition cursor-pointer" data-msg="Gostaria de conhecer lançamentos na planta">🏗️ Lançamentos</button>
+        <button class="chip-sofia px-2.5 py-1 rounded-full bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold whitespace-nowrap transition cursor-pointer" data-msg="Gostaria de falar com um corretor humano no WhatsApp">💬 WhatsApp</button>
+      </div>
+
+      <!-- Form Input -->
+      <form id="form-sofia-chat" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+        <input type="text" id="input-sofia-msg" placeholder="Ex: Apartamento 3 quartos no Bairro Jardim..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition" autocomplete="off" />
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-3.5 py-2 text-xs font-bold transition flex items-center gap-1 shadow cursor-pointer">
+          <span>Enviar</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </form>
+
+      <div class="px-3 py-1.5 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-400 flex items-center justify-between">
+        <span>Impacto Digital • Sofia IA</span>
+        <a href="https://wa.me/${sofiaConfig.whatsappDestino || '5511970558412'}" target="_blank" class="text-indigo-600 hover:underline font-bold">Atendimento Humano WhatsApp</a>
+      </div>
+    `;
+    document.body.appendChild(chatBox);
+  }
+
+  // Toggle do Chat Box
+  const btnAbrir = document.getElementById('btn-abrir-sofia');
+  const btnFechar = document.getElementById('btn-fechar-sofia');
+  const chatMensagens = document.getElementById('sofia-chat-mensagens');
+  const formChat = document.getElementById('form-sofia-chat');
+  const inputMsg = document.getElementById('input-sofia-msg');
+
+  if (btnAbrir && !btnAbrir._eventoConfigurado) {
+    btnAbrir._eventoConfigurado = true;
+    btnAbrir.addEventListener('click', () => {
+      chatBox.classList.toggle('active');
+      if (chatBox.classList.contains('active')) {
+        setTimeout(() => inputMsg?.focus(), 200);
+      }
+    });
+  }
+
+  if (btnFechar && !btnFechar._eventoConfigurado) {
+    btnFechar._eventoConfigurado = true;
+    btnFechar.addEventListener('click', () => {
+      chatBox.classList.remove('active');
+    });
+  }
+
+  // Função interna de envio de mensagem
+  const enviarMensagemSofia = (texto) => {
+    if (!texto || !texto.trim()) return;
+    const txtLimpo = texto.trim();
+
+    // 1. Renderiza mensagem do usuário
+    const divUser = document.createElement('div');
+    divUser.className = 'sofia-msg user';
+    divUser.innerHTML = `
+      <div class="sofia-msg-bubble">${escapeHtml(txtLimpo)}</div>
+    `;
+    chatMensagens.appendChild(divUser);
+    chatMensagens.scrollTop = chatMensagens.scrollHeight;
+
+    // 2. Typing indicator
+    const divTyping = document.createElement('div');
+    divTyping.className = 'sofia-msg bot';
+    divTyping.id = 'sofia-digitando';
+    divTyping.innerHTML = `
+      <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs flex-shrink-0 font-bold">✨</div>
+      <div class="sofia-typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    `;
+    chatMensagens.appendChild(divTyping);
+    chatMensagens.scrollTop = chatMensagens.scrollHeight;
+
+    // 3. Processamento inteligente via DB.processarMensagemSofiaIA
+    setTimeout(() => {
+      document.getElementById('sofia-digitando')?.remove();
+
+      const resultado = DB.processarMensagemSofiaIA(txtLimpo);
+      const divBot = document.createElement('div');
+      divBot.className = 'sofia-msg bot';
+
+      let cardsHtml = '';
+      if (resultado.recomendacoes && resultado.recomendacoes.length > 0) {
+        cardsHtml = resultado.recomendacoes.map(im => `
+          <div class="sofia-imovel-card">
+            <div class="h-28 overflow-hidden relative">
+              <img src="${im.fotoPrincipal || (im.fotos && im.fotos[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c'}" class="w-full h-full object-cover" alt="${escapeHtml(im.titulo)}">
+              <span class="absolute top-2 left-2 bg-slate-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">${im.codigo}</span>
+              <span class="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded capitalize">${im.tipo}</span>
+            </div>
+            <div class="p-2.5">
+              <h5 class="font-bold text-slate-900 text-xs truncate">${escapeHtml(im.titulo)}</h5>
+              <p class="text-[11px] text-slate-500 truncate mb-1.5">${escapeHtml(im.bairro)} • ${escapeHtml(im.cidade || 'Santo André')}</p>
+              <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+                <span class="text-xs font-black text-slate-900">${formatarMoeda(im.finalidade === 'aluguel' ? im.precoAluguel : im.preco)}</span>
+                <button onclick="window.abrirModalImovel && window.abrirModalImovel('${im.codigo}')" class="text-[11px] bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1 rounded-lg transition cursor-pointer">
+                  Ver Fotos
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      divBot.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs flex-shrink-0 font-bold">✨</div>
+        <div class="sofia-msg-bubble">
+          <div>${escapeHtml(resultado.respostaTexto)}</div>
+          ${cardsHtml}
+          <div class="mt-2 pt-2 border-t border-slate-100 flex justify-end">
+            <a href="${resultado.waLink}" target="_blank" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] px-3 py-1.5 rounded-lg transition shadow-sm">
+              <span>Continuar no WhatsApp</span>
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+            </a>
+          </div>
+        </div>
+      `;
+      chatMensagens.appendChild(divBot);
+      chatMensagens.scrollTop = chatMensagens.scrollHeight;
+
+      // Dispara evento de analytics / remarketing
+      dispararEventoRemarketing('Contact', { canal: 'Sofia IA', pesquisa: txtLimpo });
+    }, 450);
+  };
+
+  // Evento do formulário
+  if (formChat && !formChat._eventoConfigurado) {
+    formChat._eventoConfigurado = true;
+    formChat.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = inputMsg.value;
+      inputMsg.value = '';
+      enviarMensagemSofia(val);
+    });
+  }
+
+  // Evento dos Quick Chips
+  chatBox.querySelectorAll('.chip-sofia').forEach(chip => {
+    if (!chip._eventoConfigurado) {
+      chip._eventoConfigurado = true;
+      chip.addEventListener('click', () => {
+        const msg = chip.getAttribute('data-msg');
+        enviarMensagemSofia(msg);
+      });
+    }
+  });
+}
+
 window.abrirModalPrivacidade = abrirModalPrivacidade;
 window.dispararEventoRemarketing = dispararEventoRemarketing;
+window.configurarWidgetSofiaIA = configurarWidgetSofiaIA;
 

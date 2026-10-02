@@ -8,6 +8,10 @@ const STORAGE_IMOVEIS_KEY = 'imob_prime_estoque_v1';
 const STORAGE_CONFIG_KEY = 'imob_prime_config_v1';
 const STORAGE_LEADS_KEY = 'imob_prime_leads_v1';
 const STORAGE_SENHA_KEY = 'imob_prime_senha_admin';
+const STORAGE_CONTRATOS_KEY = 'imob_prime_contratos_locacao_v1';
+const STORAGE_VISTORIAS_KEY = 'imob_prime_vistorias_v1';
+const STORAGE_CORRETORES_KEY = 'imob_prime_corretores_v1';
+const STORAGE_SOFIA_KEY = 'imob_prime_sofia_config_v1';
 
 // Configurações Padrão de Identidade Visual, Remarketing e Portais (White-Label)
 const CONFIG_IMOB_PADRAO = {
@@ -415,7 +419,195 @@ const IMOVEIS_INICIAIS = [
   }
 ];
 
-// Leads Iniciais para o SaaS com Temperatura (Lead Scoring)
+// Equipe de Corretores da Imobiliária (Roleta de Leads / Round-Robin)
+const CORRETORES_INICIAIS = [
+  {
+    id: 'corretor-1',
+    nome: 'Eduardo Martins',
+    creci: '184.920-F',
+    whatsapp: '5511970558412',
+    email: 'eduardo.martins@primeimoveis.com.br',
+    especialidade: 'Alto Padrão & Coberturas',
+    leadsAtendidos: 14,
+    ativo: true,
+    foto: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80'
+  },
+  {
+    id: 'corretor-2',
+    nome: 'Mariana Silveira',
+    creci: '201.440-F',
+    whatsapp: '5511970558412',
+    email: 'mariana.silveira@primeimoveis.com.br',
+    especialidade: 'Lançamentos na Planta & Investimentos',
+    leadsAtendidos: 11,
+    ativo: true,
+    foto: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80'
+  },
+  {
+    id: 'corretor-3',
+    nome: 'Carlos Prado',
+    creci: '195.830-F',
+    whatsapp: '5511970558412',
+    email: 'carlos.prado@primeimoveis.com.br',
+    especialidade: 'Locação Comercial & Residencial',
+    leadsAtendidos: 9,
+    ativo: true,
+    foto: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=256&q=80'
+  }
+];
+
+// Contratos Ativos de Locação e Repasse Financeiro (Padrão WideSys / DIMOB)
+const CONTRATOS_LOCACAO_INICIAIS = [
+  {
+    id: 'ctr-1',
+    codigo: 'CTR-102',
+    imovelCodigo: 'CM-1190',
+    imovelTitulo: 'Laje Corporativa Prime em Edifício Triple A',
+    inquilinoNome: 'Nexa Tecnologia da Informação Ltda',
+    inquilinoDocumento: '12.345.678/0001-90',
+    inquilinoTelefone: '(11) 98877-6655',
+    proprietarioNome: 'Dr. Roberto Sampaio',
+    proprietarioDocumento: '123.456.789-00',
+    proprietarioPix: 'roberto.sampaio@email.com',
+    valorAluguel: 14500,
+    taxaAdmPercentual: 10,
+    taxaAdmValor: 1450,
+    valorRepasseLiquido: 13050,
+    condominio: 2900,
+    iptu: 950,
+    diaVencimento: 10,
+    dataInicio: '10/01/2025',
+    dataFim: '09/01/2028',
+    statusMes: 'Pago', // Pago | Aguardando | Atrasado
+    dataPagamentoMes: '08/10/2026'
+  },
+  {
+    id: 'ctr-2',
+    codigo: 'CTR-087',
+    imovelCodigo: 'AP-4102',
+    imovelTitulo: 'Apartamento Contemporâneo no Campestre',
+    inquilinoNome: 'Amanda Becker',
+    inquilinoDocumento: '234.567.890-11',
+    inquilinoTelefone: '(11) 97711-2233',
+    proprietarioNome: 'Sra. Maria Helena Duarte',
+    proprietarioDocumento: '345.678.901-22',
+    proprietarioPix: '34567890122',
+    valorAluguel: 4200,
+    taxaAdmPercentual: 10,
+    taxaAdmValor: 420,
+    valorRepasseLiquido: 3780,
+    condominio: 850,
+    iptu: 220,
+    diaVencimento: 5,
+    dataInicio: '05/03/2025',
+    dataFim: '04/03/2027',
+    statusMes: 'Pago',
+    dataPagamentoMes: '04/10/2026'
+  },
+  {
+    id: 'ctr-3',
+    codigo: 'CTR-054',
+    imovelCodigo: 'SB-3310',
+    imovelTitulo: 'Sobrado Triplex de Esquina no Valparaíso',
+    inquilinoNome: 'Juliano Fagundes',
+    inquilinoDocumento: '456.789.012-33',
+    inquilinoTelefone: '(11) 99888-4455',
+    proprietarioNome: 'Carlos Alberto Veiga',
+    proprietarioDocumento: '567.890.123-44',
+    proprietarioPix: 'carlos.veiga@fin.com.br',
+    valorAluguel: 6800,
+    taxaAdmPercentual: 8,
+    taxaAdmValor: 544,
+    valorRepasseLiquido: 6256,
+    condominio: 0,
+    iptu: 450,
+    diaVencimento: 15,
+    dataInicio: '15/06/2025',
+    dataFim: '14/06/2027',
+    statusMes: 'Aguardando',
+    dataPagamentoMes: null
+  },
+  {
+    id: 'ctr-4',
+    codigo: 'CTR-112',
+    imovelCodigo: 'AP-5520',
+    imovelTitulo: 'Apartamento de Luxo na Vila Bastos',
+    inquilinoNome: 'Marcos Vinicius Teodoro',
+    inquilinoDocumento: '678.901.234-55',
+    inquilinoTelefone: '(11) 96544-3322',
+    proprietarioNome: 'Paulo Ricardo Fontes',
+    proprietarioDocumento: '789.012.345-66',
+    proprietarioPix: 'paulo.fontes@adv.com.br',
+    valorAluguel: 7500,
+    taxaAdmPercentual: 10,
+    taxaAdmValor: 750,
+    valorRepasseLiquido: 6750,
+    condominio: 1650,
+    iptu: 580,
+    diaVencimento: 20,
+    dataInicio: '20/08/2025',
+    dataFim: '19/08/2027',
+    statusMes: 'Aguardando',
+    dataPagamentoMes: null
+  }
+];
+
+// Vistorias Digitais de Imóveis (Laudo de Entrada e Saída)
+const VISTORIAS_INICIAIS = [
+  {
+    id: 'vis-1',
+    codigo: 'VIS-2026-01',
+    contratoCodigo: 'CTR-087',
+    imovelCodigo: 'AP-4102',
+    imovelTitulo: 'Apartamento Contemporâneo no Campestre',
+    tipo: 'Entrada',
+    dataVistoria: '04/03/2025',
+    vistoriador: 'Carlos Prado (CRECI 195.830-F)',
+    inquilino: 'Amanda Becker',
+    proprietario: 'Sra. Maria Helena Duarte',
+    status: 'Aprovado',
+    comodos: [
+      { nome: 'Living / Sala', pintura: 'Novo', piso: 'Excelente', eletrica: 'Bom', obs: 'Paredes pintadas com Suvinil Fosco Neve. Piso sem riscos.' },
+      { nome: 'Cozinha', pintura: 'Novo', piso: 'Excelente', hidraulica: 'Bom', obs: 'Bancada em granito São Gabriel polido sem manchas. Torneira gourmet monocomando testada.' },
+      { nome: 'Suíte Principal', pintura: 'Novo', piso: 'Bom', portas: 'Novo', obs: 'Persiana elétrica com controle remoto funcionando perfeitamente.' },
+      { nome: 'Banheiro Social', hidraulica: 'Bom', loucas: 'Excelente', obs: 'Box blindex com vedação perfeita, ducha higiênica e chuveiro testados.' }
+    ],
+    chavesEntregues: '3 cópias da chave social, 2 de serviço e 2 tags magnéticas de acesso',
+    termoAssinado: true
+  },
+  {
+    id: 'vis-2',
+    codigo: 'VIS-2026-02',
+    contratoCodigo: 'CTR-102',
+    imovelCodigo: 'CM-1190',
+    imovelTitulo: 'Laje Corporativa Prime em Edifício Triple A',
+    tipo: 'Entrada',
+    dataVistoria: '08/01/2025',
+    vistoriador: 'Eduardo Martins (CRECI 184.920-F)',
+    inquilino: 'Nexa Tecnologia Ltda',
+    proprietario: 'Dr. Roberto Sampaio',
+    status: 'Aprovado',
+    comodos: [
+      { nome: 'Vão Livre Corporativo', pisoElevado: 'Excelente', forroModular: 'Novo', obs: 'Piso elevado pronto para passagem de cabeamento. Luminárias LED 100% operantes.' },
+      { nome: 'Climatização Central', arCondicionado: 'Excelente', laudoPMOC: 'Sim', obs: 'Sistema VRF Daikin higienizado com laudo PMOC vigente anexado.' },
+      { nome: 'Banheiros Executivos', loucas: 'Excelente', metais: 'Novo', obs: 'Sensores de presença e torneiras automáticas com fechamento programado.' }
+    ],
+    chavesEntregues: '4 cartões RFID de acesso à laje e 6 tags de garagem rotativa',
+    termoAssinado: true
+  }
+];
+
+// Configuração da Sofia IA (Atendimento Virtual 24h no WhatsApp e Site)
+const CONFIG_SOFIA_PADRAO = {
+  ativada: true,
+  nome: 'Sofia IA',
+  cargo: 'Consultora Imobiliária Virtual 24h',
+  tomVoz: 'Sofisticado, acolhedor e focado em qualificação rápida',
+  mensagemBoasVindas: 'Olá! Sou a Sofia, consultora inteligente da Prime Imóveis. Conte comigo para encontrar a cobertura, apartamento ou casa dos seus sonhos. O que você procura hoje: Comprar ou Alugar?',
+  whatsappDestino: '5511970558412'
+};
+
+// Leads Iniciais para o CRM com Pipeline Kanban (5 Etapas)
 const LEADS_INICIAIS = [
   {
     id: 'lead-1',
@@ -423,11 +615,13 @@ const LEADS_INICIAIS = [
     whatsapp: '5511988223344',
     email: 'rodrigo.albuquerque@clinica.com.br',
     imovelCodigo: 'CB-9021',
-    imovelTitulo: 'Cobertura Duplex com Vista Panorâmica e Piscina Privativa',
+    imovelTitulo: 'Cobertura Duplex no Bairro Jardim',
     tipoInteresse: 'Visita Presencial',
-    mensagem: 'Olá, tenho muito interesse em visitar a cobertura duplex no Bairro Jardim neste sábado pela manhã.',
-    status: 'Visita Agendada',
-    temperatura: 'quente', // quente | morno | frio
+    origem: 'Instagram Ads',
+    etapa: 'visita', // novo | contato | visita | proposta | fechado
+    temperatura: 'quente',
+    valorNegocio: 3850000,
+    corretor: 'Eduardo Martins',
     data: '02/10/2026 10:15',
     valorProposta: 'R$ 3.700.000 (À Vista)',
     preferencias: { tipo: 'cobertura', bairro: 'Bairro Jardim', precoMax: 4000000 }
@@ -438,13 +632,15 @@ const LEADS_INICIAIS = [
     whatsapp: '5511977665544',
     email: 'camila.vasconcelos@adv.br',
     imovelCodigo: 'AP-4102',
-    imovelTitulo: 'Apartamento Contemporâneo com Varanda Gourmet Integrada',
+    imovelTitulo: 'Apartamento Contemporâneo no Campestre',
     tipoInteresse: 'Simulação de Financiamento',
-    mensagem: 'Gostei muito do apartamento no Campestre. Quero saber o valor da entrada mínima com financiamento Itaú.',
-    status: 'Em Atendimento',
+    origem: 'ZAP Imóveis',
+    etapa: 'contato',
     temperatura: 'quente',
+    valorNegocio: 1280000,
+    corretor: 'Mariana Silveira',
     data: '02/10/2026 11:40',
-    valorProposta: 'Entrada R$ 300.000 + Financiamento',
+    valorProposta: 'Entrada R$ 300.000 + Financiamento Itaú',
     preferencias: { tipo: 'apartamento', bairro: 'Campestre', precoMax: 1300000 }
   },
   {
@@ -453,14 +649,67 @@ const LEADS_INICIAIS = [
     whatsapp: '5511999112233',
     email: 'fernando.prado@construtora.eng.br',
     imovelCodigo: 'LC-7700',
-    imovelTitulo: 'Residencial Horizon Prime — Lançamento Exclusivo',
+    imovelTitulo: 'Residencial Horizon Prime — Planta',
     tipoInteresse: 'Book Digital / Lançamento',
-    mensagem: 'Gostaria de receber o material completo e a tabela de investidor do Horizon Prime.',
-    status: 'Novo',
+    origem: 'Facebook Ads',
+    etapa: 'novo',
     temperatura: 'morno',
+    valorNegocio: 690000,
+    corretor: 'Eduardo Martins',
     data: '02/10/2026 12:20',
     valorProposta: 'Investimento na Planta',
     preferencias: { tipo: 'lancamento', bairro: 'Vila Gilda', precoMax: 800000 }
+  },
+  {
+    id: 'lead-4',
+    nome: 'Marcos Vinicius Alves',
+    whatsapp: '5511985554433',
+    email: 'marcos.alves@gestao.com.br',
+    imovelCodigo: 'CS-8840',
+    imovelTitulo: 'Casa em Condomínio Fechado Alphaville',
+    tipoInteresse: 'Proposta Comercial Formalizada',
+    origem: 'VivaReal',
+    etapa: 'proposta',
+    temperatura: 'quente',
+    valorNegocio: 5200000,
+    corretor: 'Eduardo Martins',
+    data: '01/10/2026 16:30',
+    valorProposta: 'R$ 5.000.000 (Sinal R$ 1.5M + Saldo Bancário)',
+    preferencias: { tipo: 'condominio', bairro: 'Condomínio Fechado', precoMax: 5500000 }
+  },
+  {
+    id: 'lead-5',
+    nome: 'Juliana e Renato Becker',
+    whatsapp: '5511972221199',
+    email: 'renato.becker@empresa.com.br',
+    imovelCodigo: 'AP-5520',
+    imovelTitulo: 'Apartamento de Luxo na Vila Bastos',
+    tipoInteresse: 'Contrato Assinado / Chaves Entregues',
+    origem: 'Site Direto',
+    etapa: 'fechado',
+    temperatura: 'quente',
+    valorNegocio: 2150000,
+    corretor: 'Mariana Silveira',
+    data: '29/09/2026 14:00',
+    valorProposta: 'R$ 2.150.000 (Financiado Bradesco Prime)',
+    preferencias: { tipo: 'apartamento', bairro: 'Vila Bastos', precoMax: 2300000 }
+  },
+  {
+    id: 'lead-6',
+    nome: 'Dra. Patrícia Silveira',
+    whatsapp: '5511964448877',
+    email: 'patricia.silveira@saude.med.br',
+    imovelCodigo: 'CM-1190',
+    imovelTitulo: 'Laje Corporativa Prime Comercial',
+    tipoInteresse: 'Locação para Clínica de Especialidades',
+    origem: 'OLX Imóveis',
+    etapa: 'contato',
+    temperatura: 'morno',
+    valorNegocio: 174000,
+    corretor: 'Carlos Prado',
+    data: '02/10/2026 09:10',
+    valorProposta: 'Aluguel R$ 14.500/mês + Carência 30 dias',
+    preferencias: { tipo: 'comercial', bairro: 'Jardim', precoMax: 15000 }
   }
 ];
 
@@ -576,6 +825,23 @@ const DB = {
       lead.data = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     }
     if (!lead.status) lead.status = 'Novo';
+    if (!lead.etapa) lead.etapa = 'novo'; // novo | contato | visita | proposta | fechado
+    if (!lead.origem) lead.origem = 'Site Direto';
+    if (!lead.valorNegocio) {
+      if (lead.imovelCodigo) {
+        const im = this.getImovelPorCodigo(lead.imovelCodigo);
+        lead.valorNegocio = im ? (im.preco || im.precoAluguel * 12 || 500000) : 500000;
+      } else {
+        lead.valorNegocio = 650000;
+      }
+    }
+
+    // Roleta de Leads (atribui automaticamente ao próximo corretor da equipe)
+    if (!lead.corretor) {
+      const corretorEscolhido = this.obterProximoCorretorRoleta();
+      lead.corretor = corretorEscolhido ? corretorEscolhido.nome : 'Plantão de Vendas';
+      lead.corretorWhatsapp = corretorEscolhido ? corretorEscolhido.whatsapp : this.getConfig().whatsapp;
+    }
 
     // Lead Scoring com IA (Quente, Morno, Frio)
     lead.temperatura = this.calcularLeadScore(lead);
@@ -597,7 +863,7 @@ const DB = {
   },
 
   calcularLeadScore(lead) {
-    const texto = `${lead.tipoInteresse} ${lead.mensagem} ${lead.valorProposta}`.toLowerCase();
+    const texto = `${lead.tipoInteresse || ''} ${lead.mensagem || ''} ${lead.valorProposta || ''}`.toLowerCase();
     if (texto.includes('visita') || texto.includes('proposta') || texto.includes('à vista') || texto.includes('comprar')) {
       return 'quente'; // 🔥 Lead de alta intenção de compra imediata
     }
@@ -612,10 +878,58 @@ const DB = {
     const l = leads.find(item => item.id === id);
     if (l) {
       l.status = novoStatus;
+      if (novoStatus === 'Fechado') l.etapa = 'fechado';
+      else if (novoStatus === 'Visita Agendada') l.etapa = 'visita';
+      else if (novoStatus === 'Em Atendimento') l.etapa = 'contato';
       this.salvarLeads(leads);
       return l;
     }
     return null;
+  },
+
+  moverEtapaLead(leadId, novaEtapa) {
+    const leads = this.getLeads();
+    const l = leads.find(item => item.id === leadId);
+    if (l) {
+      l.etapa = novaEtapa;
+      if (novaEtapa === 'fechado') l.status = 'Fechado';
+      else if (novaEtapa === 'proposta') l.status = 'Em Proposta';
+      else if (novaEtapa === 'visita') l.status = 'Visita Agendada';
+      else if (novaEtapa === 'contato') l.status = 'Em Atendimento';
+      else l.status = 'Novo';
+      this.salvarLeads(leads);
+      return l;
+    }
+    return null;
+  },
+
+  avancarEtapaLead(leadId) {
+    const etapas = ['novo', 'contato', 'visita', 'proposta', 'fechado'];
+    const leads = this.getLeads();
+    const l = leads.find(item => item.id === leadId);
+    if (!l) return null;
+    const currentIndex = etapas.indexOf(l.etapa || 'novo');
+    if (currentIndex < etapas.length - 1) {
+      return this.moverEtapaLead(leadId, etapas[currentIndex + 1]);
+    }
+    return l;
+  },
+
+  calcularMetricasPipeline() {
+    const leads = this.getLeads();
+    const totalLeads = leads.length;
+    const fechados = leads.filter(l => l.etapa === 'fechado').length;
+    const emNegociacao = leads.filter(l => l.etapa !== 'fechado');
+    const valorEmNegociacao = emNegociacao.reduce((acc, l) => acc + (l.valorNegocio || 0), 0);
+    const taxaConversao = totalLeads > 0 ? ((fechados / totalLeads) * 100).toFixed(1) : 0;
+
+    return {
+      totalLeads,
+      fechados,
+      valorEmNegociacao,
+      taxaConversao,
+      tempoMedioDias: 14
+    };
   },
 
   removerLead(id) {
@@ -623,6 +937,51 @@ const DB = {
     leads = leads.filter(item => item.id !== id);
     this.salvarLeads(leads);
     return true;
+  },
+
+  // =========================================================================
+  // GESTÃO DE CORRETORES & ROLETA INTELIGENTE (ROUND-ROBIN)
+  // =========================================================================
+  getCorretores() {
+    try {
+      const data = localStorage.getItem(STORAGE_CORRETORES_KEY);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    this.salvarCorretores(CORRETORES_INICIAIS);
+    return CORRETORES_INICIAIS;
+  },
+
+  salvarCorretores(corretores) {
+    try {
+      localStorage.setItem(STORAGE_CORRETORES_KEY, JSON.stringify(corretores));
+      window.dispatchEvent(new CustomEvent('imob_corretores_atualizados', { detail: corretores }));
+    } catch (e) {}
+  },
+
+  adicionarCorretor(corretor) {
+    const corretores = this.getCorretores();
+    if (!corretor.id) corretor.id = 'corretor-' + Date.now();
+    if (!corretor.leadsAtendidos) corretor.leadsAtendidos = 0;
+    if (corretor.ativo === undefined) corretor.ativo = true;
+    corretores.push(corretor);
+    this.salvarCorretores(corretores);
+    return corretor;
+  },
+
+  obterProximoCorretorRoleta() {
+    const corretores = this.getCorretores().filter(c => c.ativo);
+    if (corretores.length === 0) {
+      return { nome: 'Plantão de Vendas', whatsapp: this.getConfig().whatsapp, creci: this.getConfig().creci };
+    }
+    // Ordena pelo menor número de leads atendidos (distribuição equilibrada)
+    corretores.sort((a, b) => (a.leadsAtendidos || 0) - (b.leadsAtendidos || 0));
+    const escolhido = corretores[0];
+    escolhido.leadsAtendidos = (escolhido.leadsAtendidos || 0) + 1;
+    this.salvarCorretores(this.getCorretores().map(c => c.id === escolhido.id ? escolhido : c));
+    return escolhido;
   },
 
   // =========================================================================
@@ -772,6 +1131,236 @@ ${(imovel.tags || []).map(t => `#${t.replace(/\s+/g, '')}`).join(' ')}
     return xml;
   },
 
+  // =========================================================================
+  // GESTÃO DE LOCAÇÃO, REPASSES & DIMOB (Padrão WideSys)
+  // =========================================================================
+  getContratosLocacao() {
+    try {
+      const data = localStorage.getItem(STORAGE_CONTRATOS_KEY);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    this.salvarContratosLocacao(CONTRATOS_LOCACAO_INICIAIS);
+    return CONTRATOS_LOCACAO_INICIAIS;
+  },
+
+  salvarContratosLocacao(contratos) {
+    try {
+      localStorage.setItem(STORAGE_CONTRATOS_KEY, JSON.stringify(contratos));
+      window.dispatchEvent(new CustomEvent('imob_contratos_atualizados', { detail: contratos }));
+    } catch (e) {}
+  },
+
+  adicionarContratoLocacao(contrato) {
+    const contratos = this.getContratosLocacao();
+    if (!contrato.id) contrato.id = 'ctr-' + Date.now();
+    if (!contrato.taxaAdmPercentual) contrato.taxaAdmPercentual = 10;
+    contrato.taxaAdmValor = (contrato.valorAluguel * contrato.taxaAdmPercentual) / 100;
+    contrato.valorRepasseLiquido = contrato.valorAluguel - contrato.taxaAdmValor;
+    if (!contrato.statusMes) contrato.statusMes = 'Aguardando';
+
+    contratos.unshift(contrato);
+    this.salvarContratosLocacao(contratos);
+    return contrato;
+  },
+
+  atualizarStatusContrato(id, novoStatus) {
+    const contratos = this.getContratosLocacao();
+    const c = contratos.find(item => item.id === id);
+    if (c) {
+      c.statusMes = novoStatus;
+      if (novoStatus === 'Pago') {
+        const d = new Date();
+        c.dataPagamentoMes = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+      } else {
+        c.dataPagamentoMes = null;
+      }
+      this.salvarContratosLocacao(contratos);
+      return c;
+    }
+    return null;
+  },
+
+  removerContratoLocacao(id) {
+    let contratos = this.getContratosLocacao();
+    contratos = contratos.filter(item => item.id !== id);
+    this.salvarContratosLocacao(contratos);
+    return true;
+  },
+
+  calcularMetricasLocacao() {
+    const contratos = this.getContratosLocacao();
+    const totalAlugueis = contratos.reduce((acc, c) => acc + (c.valorAluguel || 0), 0);
+    const totalRepasses = contratos.reduce((acc, c) => acc + (c.valorRepasseLiquido || 0), 0);
+    const taxaAdmTotal = contratos.reduce((acc, c) => acc + (c.taxaAdmValor || 0), 0);
+    const pagos = contratos.filter(c => c.statusMes === 'Pago').length;
+    const taxaAdimplencia = contratos.length > 0 ? ((pagos / contratos.length) * 100).toFixed(0) : 100;
+
+    return {
+      totalContratos: contratos.length,
+      totalAlugueis,
+      totalRepasses,
+      taxaAdmTotal,
+      taxaAdimplencia
+    };
+  },
+
+  exportarDimob(ano = 2026) {
+    const config = this.getConfig();
+    const contratos = this.getContratosLocacao();
+    
+    let dimobRelatorio = `========================================================================\n`;
+    dimobRelatorio += `DECLARAÇÃO DE INFORMAÇÕES SOBRE ATIVIDADES IMOBILIÁRIAS (DIMOB - ${ano})\n`;
+    dimobRelatorio += `IMOBILIÁRIA: ${config.nome.toUpperCase()} - CNPJ: 12.345.678/0001-90\n`;
+    dimobRelatorio += `REGISTRO CRECI: ${config.creci} | DATA DE GERAÇÃO: ${new Date().toLocaleDateString('pt-BR')}\n`;
+    dimobRelatorio += `========================================================================\n\n`;
+    dimobRelatorio += `REGISTRO R01 - RENDIMENTOS DE LOCAÇÃO E TAXAS DE ADMINISTRAÇÃO:\n\n`;
+
+    let totalRendimentos = 0;
+    let totalComissoes = 0;
+
+    contratos.forEach((c, idx) => {
+      const valorBrutoAnual = (c.valorAluguel || 0) * 12;
+      const comissaoAnual = (c.taxaAdmValor || 0) * 12;
+      const repasseAnual = (c.valorRepasseLiquido || 0) * 12;
+      totalRendimentos += valorBrutoAnual;
+      totalComissoes += comissaoAnual;
+
+      dimobRelatorio += `[CONTRATO ${idx + 1}] Código: ${c.codigo} | Imóvel: ${c.imovelCodigo}\n`;
+      dimobRelatorio += `  • Locador (Proprietário): ${c.proprietarioNome} (CPF/CNPJ: ${c.proprietarioDocumento})\n`;
+      dimobRelatorio += `  • Locatário (Inquilino): ${c.inquilinoNome} (CPF/CNPJ: ${c.inquilinoDocumento})\n`;
+      dimobRelatorio += `  • Valor Bruto Anual: R$ ${valorBrutoAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
+      dimobRelatorio += `  • Taxa de Administração Retida: R$ ${comissaoAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${c.taxaAdmPercentual}%)\n`;
+      dimobRelatorio += `  • Rendimento Líquido Repassado: R$ ${repasseAnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n\n`;
+    });
+
+    dimobRelatorio += `------------------------------------------------------------------------\n`;
+    dimobRelatorio += `TOTAL GERAL DECLARADO:\n`;
+    dimobRelatorio += `  • Total de Rendimentos Brutos: R$ ${totalRendimentos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
+    dimobRelatorio += `  • Total de Taxa de Administração Imobiliária: R$ ${totalComissoes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
+    dimobRelatorio += `  • Situação: Relatório Válido para Transmissão via Receitanet\n`;
+    dimobRelatorio += `========================================================================\n`;
+
+    return dimobRelatorio;
+  },
+
+  // =========================================================================
+  // VISTORIAS DIGITAIS DE IMÓVEIS (Laudo de Entrada e Saída)
+  // =========================================================================
+  getVistorias() {
+    try {
+      const data = localStorage.getItem(STORAGE_VISTORIAS_KEY);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    this.salvarVistorias(VISTORIAS_INICIAIS);
+    return VISTORIAS_INICIAIS;
+  },
+
+  salvarVistorias(vistorias) {
+    try {
+      localStorage.setItem(STORAGE_VISTORIAS_KEY, JSON.stringify(vistorias));
+      window.dispatchEvent(new CustomEvent('imob_vistorias_atualizadas', { detail: vistorias }));
+    } catch (e) {}
+  },
+
+  adicionarVistoria(vistoria) {
+    const vistorias = this.getVistorias();
+    if (!vistoria.id) vistoria.id = 'vis-' + Date.now();
+    if (!vistoria.codigo) vistoria.codigo = `VIS-${new Date().getFullYear()}-${String(vistorias.length + 1).padStart(2, '0')}`;
+    vistorias.unshift(vistoria);
+    this.salvarVistorias(vistorias);
+    return vistoria;
+  },
+
+  removerVistoria(id) {
+    let vistorias = this.getVistorias();
+    vistorias = vistorias.filter(item => item.id !== id);
+    this.salvarVistorias(vistorias);
+    return true;
+  },
+
+  // =========================================================================
+  // SOFIA IA: ATENDIMENTO VIRTUAL NO SITE E WHATSAPP 24H (Padrão Tais IA)
+  // =========================================================================
+  getSofiaConfig() {
+    try {
+      const data = localStorage.getItem(STORAGE_SOFIA_KEY);
+      if (data) return { ...CONFIG_SOFIA_PADRAO, ...JSON.parse(data) };
+    } catch (e) {}
+    return { ...CONFIG_SOFIA_PADRAO };
+  },
+
+  salvarSofiaConfig(config) {
+    try {
+      localStorage.setItem(STORAGE_SOFIA_KEY, JSON.stringify(config));
+    } catch (e) {}
+  },
+
+  processarMensagemSofiaIA(mensagemUsuario) {
+    const texto = (mensagemUsuario || '').toLowerCase().trim();
+    const config = this.getConfig();
+    const imoveis = this.getImoveis().filter(im => im.status === 'disponivel');
+
+    // Identifica intenção de locação ou compra
+    const querAlugar = texto.includes('alug') || texto.includes('locaç') || texto.includes('locar');
+    const querComprar = texto.includes('compr') || texto.includes('venda') || texto.includes('adquirir');
+    
+    // Identifica tipologia
+    let tipoIdentificado = '';
+    if (texto.includes('cobertura')) tipoIdentificado = 'cobertura';
+    else if (texto.includes('apartamento') || texto.includes('apto')) tipoIdentificado = 'apartamento';
+    else if (texto.includes('casa') || texto.includes('sobrado')) tipoIdentificado = 'casa';
+    else if (texto.includes('condominio')) tipoIdentificado = 'condominio';
+    else if (texto.includes('planta') || texto.includes('lançamento')) tipoIdentificado = 'lancamento';
+    else if (texto.includes('comercial') || texto.includes('laje') || texto.includes('sala')) tipoIdentificado = 'comercial';
+
+    // Identifica bairro
+    let bairroIdentificado = '';
+    if (texto.includes('jardim')) bairroIdentificado = 'jardim';
+    else if (texto.includes('campestre')) bairroIdentificado = 'campestre';
+    else if (texto.includes('bastos')) bairroIdentificado = 'bastos';
+    else if (texto.includes('valparaiso')) bairroIdentificado = 'valparaíso';
+
+    // Filtra imóveis compatíveis
+    let sugestoes = imoveis;
+    if (querAlugar) sugestoes = sugestoes.filter(im => im.finalidade === 'aluguel');
+    else if (querComprar) sugestoes = sugestoes.filter(im => im.finalidade === 'venda');
+
+    if (tipoIdentificado) {
+      const filtradosPorTipo = sugestoes.filter(im => im.tipo.toLowerCase().includes(tipoIdentificado));
+      if (filtradosPorTipo.length > 0) sugestoes = filtradosPorTipo;
+    }
+
+    if (bairroIdentificado) {
+      const filtradosPorBairro = sugestoes.filter(im => im.bairro.toLowerCase().includes(bairroIdentificado));
+      if (filtradosPorBairro.length > 0) sugestoes = filtradosPorBairro;
+    }
+
+    // Pega as melhores 2 ou 3 opções
+    const recomendacoes = sugestoes.slice(0, 3);
+
+    let respostaTexto = '';
+    if (recomendacoes.length > 0) {
+      const nomes = recomendacoes.map(im => `• ${im.codigo} - ${im.titulo} (${im.bairro})`).join('\n');
+      respostaTexto = `Com certeza! Encontrei opções incríveis no nosso acervo que combinam com você:\n\n${nomes}\n\nVocê gostaria de ver as fotos e agendar uma visita comigo ou com nosso corretor de plantão no WhatsApp?`;
+    } else {
+      respostaTexto = `Entendi perfeitamente sua busca! Temos novas oportunidades exclusivas entrando em carteira esta semana. Posso conectá-lo(a) agora mesmo com nosso especialista no WhatsApp para apresentar opções sob medida para você?`;
+    }
+
+    const waLink = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Olá! Estive conversando com a Sofia IA no site sobre: "${mensagemUsuario}". Gostaria de receber mais detalhes e fotos dos imóveis sugeridos.`)}`;
+
+    return {
+      respostaTexto,
+      recomendacoes,
+      waLink
+    };
+  },
+
   // Autenticação simples do SaaS
   validarSenhaAdmin(senha) {
     const senhaSalva = localStorage.getItem(STORAGE_SENHA_KEY) || 'admin123';
@@ -788,6 +1377,10 @@ ${(imovel.tags || []).map(t => `#${t.replace(/\s+/g, '')}`).join(' ')}
     this.salvarImoveis(IMOVEIS_INICIAIS);
     this.salvarConfig(CONFIG_IMOB_PADRAO);
     this.salvarLeads(LEADS_INICIAIS);
+    this.salvarCorretores(CORRETORES_INICIAIS);
+    this.salvarContratosLocacao(CONTRATOS_LOCACAO_INICIAIS);
+    this.salvarVistorias(VISTORIAS_INICIAIS);
+    this.salvarSofiaConfig(CONFIG_SOFIA_PADRAO);
   }
 };
 

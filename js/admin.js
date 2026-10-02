@@ -20,6 +20,10 @@ function initAdminSaaS() {
   configurarExportacaoImportacao();
   configurarAbaPortais();
   configurarBotoesIA();
+  configurarPipelineKanbanERoleta();
+  configurarGestaoLocacao();
+  configurarVistoriasDigitais();
+  configurarSofiaIA();
 }
 
 /**
@@ -45,7 +49,12 @@ function exibirPainelPrincipal() {
   document.getElementById('painel-admin-conteudo').classList.remove('hidden');
   carregarMetricasDashboard();
   renderizarTabelaImoveis();
+  renderizarPipelineKanban();
   renderizarTabelaLeads();
+  renderizarRoletaCorretores();
+  renderizarGestaoLocacao();
+  renderizarVistoriasDigitais();
+  carregarSofiaConfigNoPainel();
   carregarFormularioConfig();
   atualizarStatusPortaisNaTela();
 }
@@ -100,7 +109,14 @@ function configurarNavegacaoAbas() {
       document.getElementById(targetId)?.classList.remove('hidden');
 
       if (targetId === 'aba-imoveis') renderizarTabelaImoveis();
-      if (targetId === 'aba-leads') renderizarTabelaLeads();
+      if (targetId === 'aba-leads') {
+        renderizarPipelineKanban();
+        renderizarTabelaLeads();
+        renderizarRoletaCorretores();
+      }
+      if (targetId === 'aba-locacao') renderizarGestaoLocacao();
+      if (targetId === 'aba-vistorias') renderizarVistoriasDigitais();
+      if (targetId === 'aba-sofia') carregarSofiaConfigNoPainel();
       if (targetId === 'aba-dashboard') carregarMetricasDashboard();
       if (targetId === 'aba-portais') atualizarStatusPortaisNaTela();
     });
@@ -426,6 +442,9 @@ function gerarCopySocialImovel(id) {
 /**
  * 7. CRM de Leads, Matching Inteligente & Lead Scoring
  */
+/**
+ * 7. CRM de Leads, Pipeline Kanban & Roleta de Corretores
+ */
 function renderizarTabelaLeads() {
   const container = document.getElementById('tabela-leads-corpo');
   if (!container) return;
@@ -444,14 +463,10 @@ function renderizarTabelaLeads() {
   }
 
   container.innerHTML = leads.map(l => {
-    let statusClass = 'bg-blue-50 text-blue-700';
-    if (l.status === 'Novo') statusClass = 'bg-emerald-50 text-emerald-700 font-bold';
-    if (l.status === 'Visita Agendada') statusClass = 'bg-amber-50 text-amber-700';
-    if (l.status === 'Fechado') statusClass = 'bg-purple-50 text-purple-700';
-
     const scoreClass = l.temperatura === 'quente' ? 'lead-score-quente' : (l.temperatura === 'morno' ? 'lead-score-morno' : 'lead-score-frio');
     const scoreLabel = l.temperatura === 'quente' ? '🔥 Quente' : (l.temperatura === 'morno' ? '⚡ Morno' : '❄️ Frio');
     const numeroLimpo = (l.whatsapp || '').replace(/\D/g, '');
+    const valorFormatado = (l.valorNegocio || 0).toLocaleString('pt-BR');
 
     return `
       <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
@@ -464,18 +479,27 @@ function renderizarTabelaLeads() {
         <td class="py-3 px-4">
           <div class="font-bold text-slate-900 text-sm">${l.nome}</div>
           <div class="text-xs text-slate-500">${l.whatsapp}</div>
+          <div class="text-[10px] text-emerald-600 font-bold">R$ ${valorFormatado}</div>
         </td>
         <td class="py-3 px-4">
-          <div class="font-semibold text-slate-800 text-xs">${l.imovelTitulo}</div>
-          <div class="text-[11px] text-blue-600 font-bold uppercase">${l.tipoInteresse}</div>
+          <div class="font-semibold text-slate-800 text-xs">${l.imovelTitulo || 'Interesse Geral'}</div>
+          <span class="inline-block text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded mt-0.5">
+            ${l.origem || 'Site'}
+          </span>
         </td>
         <td class="py-3 px-4">
-          <select onchange="alterarStatusLeadRapido('${l.id}', this.value)" class="text-xs font-semibold rounded-lg px-2.5 py-1 border border-slate-200 focus:outline-none ${statusClass}">
-            <option value="Novo" ${l.status === 'Novo' ? 'selected' : ''}>Novo</option>
-            <option value="Em Atendimento" ${l.status === 'Em Atendimento' ? 'selected' : ''}>Em Atendimento</option>
-            <option value="Visita Agendada" ${l.status === 'Visita Agendada' ? 'selected' : ''}>Visita Agendada</option>
-            <option value="Fechado" ${l.status === 'Fechado' ? 'selected' : ''}>Fechado</option>
-            <option value="Perdido" ${l.status === 'Perdido' ? 'selected' : ''}>Perdido</option>
+          <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+            <span>👤</span>
+            <span>${l.corretor || 'Plantão'}</span>
+          </div>
+        </td>
+        <td class="py-3 px-4">
+          <select onchange="alterarEtapaLeadRapido('${l.id}', this.value)" class="text-xs font-semibold rounded-lg px-2.5 py-1 border border-slate-200 focus:outline-none bg-slate-50 text-slate-800">
+            <option value="novo" ${(l.etapa === 'novo' || l.status === 'Novo') ? 'selected' : ''}>📥 Novo</option>
+            <option value="contato" ${(l.etapa === 'contato' || l.status === 'Em Atendimento') ? 'selected' : ''}>💬 Em Contato</option>
+            <option value="visita" ${(l.etapa === 'visita' || l.status === 'Visita Agendada') ? 'selected' : ''}>📅 Visita</option>
+            <option value="proposta" ${(l.etapa === 'proposta' || l.status === 'Em Proposta') ? 'selected' : ''}>📑 Proposta</option>
+            <option value="fechado" ${(l.etapa === 'fechado' || l.status === 'Fechado') ? 'selected' : ''}>🏆 Fechado</option>
           </select>
         </td>
         <td class="py-3 px-4 text-right">
@@ -483,7 +507,7 @@ function renderizarTabelaLeads() {
             <button onclick="abrirModalMatching('${l.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1.5 rounded-lg transition" title="Cruzamento Inteligente de Imóveis (Matching)">
               🎯 Matching
             </button>
-            <a href="https://wa.me/${numeroLimpo}?text=${encodeURIComponent(`Olá ${l.nome}, tudo bem? Aqui é da equipe da ${DB.getConfig().nome}. Recebemos seu interesse no imóvel ${l.imovelTitulo}. Podemos conversar?`)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
+            <a href="https://wa.me/${numeroLimpo}?text=${encodeURIComponent(`Olá ${l.nome}, tudo bem? Aqui é ${l.corretor || 'da equipe'} da ${DB.getConfig().nome}. Recebemos seu interesse no imóvel ${l.imovelTitulo || 'anunciado'}. Como posso ajudar você hoje?`)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
               <span>WhatsApp</span>
             </a>
             <button onclick="excluirLead('${l.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition" title="Excluir Lead">
@@ -496,17 +520,121 @@ function renderizarTabelaLeads() {
   }).join('');
 }
 
+function alterarEtapaLeadRapido(id, novaEtapa) {
+  DB.moverEtapaLead(id, novaEtapa);
+  renderizarPipelineKanban();
+  carregarMetricasDashboard();
+}
+
+function avancarEtapaLeadRapido(id) {
+  DB.avancarEtapaLead(id);
+  renderizarPipelineKanban();
+  renderizarTabelaLeads();
+  carregarMetricasDashboard();
+}
+
 function alterarStatusLeadRapido(id, novoStatus) {
   DB.atualizarStatusLead(id, novoStatus);
+  renderizarPipelineKanban();
   carregarMetricasDashboard();
 }
 
 function excluirLead(id) {
   if (confirm('Deseja excluir este lead?')) {
     DB.removerLead(id);
+    renderizarPipelineKanban();
     renderizarTabelaLeads();
     carregarMetricasDashboard();
   }
+}
+
+/**
+ * 7.1 Renderização do Pipeline Kanban de Vendas
+ */
+function renderizarPipelineKanban() {
+  const leads = DB.getLeads();
+  const metricas = DB.calcularMetricasPipeline();
+
+  // Atualiza Indicadores Superiores
+  const kpiVgv = document.getElementById('kpi-pipeline-vgv');
+  const kpiConv = document.getElementById('kpi-pipeline-conversao');
+  const kpiTempo = document.getElementById('kpi-pipeline-tempo');
+  const kpiRoleta = document.getElementById('kpi-roleta-status');
+
+  if (kpiVgv) kpiVgv.textContent = `R$ ${(metricas.valorEmNegociacao / 1000000).toFixed(2)}M`;
+  if (kpiConv) kpiConv.textContent = `${metricas.taxaConversao}%`;
+  if (kpiTempo) kpiTempo.textContent = `${metricas.tempoMedioDias} dias`;
+  if (kpiRoleta) kpiRoleta.textContent = `${DB.getCorretores().filter(c => c.ativo).length} Corretores`;
+
+  const etapas = ['novo', 'contato', 'visita', 'proposta', 'fechado'];
+
+  etapas.forEach(etapa => {
+    const colunaContainer = document.getElementById(`coluna-leads-${etapa}`);
+    const badgeCount = document.getElementById(`badge-count-${etapa}`);
+    if (!colunaContainer) return;
+
+    const leadsNaEtapa = leads.filter(l => (l.etapa === etapa) || (!l.etapa && etapa === 'novo'));
+    if (badgeCount) badgeCount.textContent = leadsNaEtapa.length;
+
+    if (leadsNaEtapa.length === 0) {
+      colunaContainer.innerHTML = `
+        <div class="py-8 text-center text-slate-400 text-[11px] border border-dashed border-slate-200 rounded-xl">
+          Nenhum lead nesta etapa
+        </div>
+      `;
+      return;
+    }
+
+    colunaContainer.innerHTML = leadsNaEtapa.map(l => {
+      const scoreBadge = l.temperatura === 'quente'
+        ? '<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">🔥 QUENTE</span>'
+        : (l.temperatura === 'morno' ? '<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">⚡ MORNO</span>' : '<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">❄️ FRIO</span>');
+      
+      const numeroLimpo = (l.whatsapp || '').replace(/\D/g, '');
+      const valorFormatado = (l.valorNegocio || 0).toLocaleString('pt-BR');
+      const botaoAvancar = etapa !== 'fechado' ? `
+        <button onclick="avancarEtapaLeadRapido('${l.id}')" class="p-1 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 rounded-lg text-[10px] font-bold transition flex items-center gap-0.5" title="Avançar para próxima etapa do funil">
+          <span>Avançar</span>
+          <span>→</span>
+        </button>
+      ` : '';
+
+      return `
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm space-y-2 hover:shadow-md transition">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h4 class="font-black text-slate-900 text-xs leading-tight">${l.nome}</h4>
+              <span class="text-[10px] text-slate-400 font-semibold">${l.origem || 'Site'}</span>
+            </div>
+            ${scoreBadge}
+          </div>
+
+          <div class="text-[11px] text-slate-600 line-clamp-1 font-medium bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+            🏢 ${l.imovelTitulo || 'Interesse Geral'}
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+            <span class="font-black text-slate-900">R$ ${valorFormatado}</span>
+            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+              👤 ${l.corretor || 'Plantão'}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 gap-1">
+            <div class="flex items-center gap-1">
+              <a href="https://wa.me/${numeroLimpo}?text=${encodeURIComponent(`Olá ${l.nome}! Aqui é ${l.corretor || 'da equipe'} da ${DB.getConfig().nome}. Vi seu interesse no imóvel ${l.imovelTitulo || ''}. Vamos agendar uma visita?`)}" target="_blank" class="p-1.5 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-lg transition" title="Falar no WhatsApp">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+              </a>
+              <button onclick="abrirModalMatching('${l.id}')" class="p-1.5 bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white rounded-lg text-[10px] font-bold transition" title="Cruzamento com Catálogo (Matching)">
+                🎯
+              </button>
+            </div>
+            ${botaoAvancar}
+          </div>
+        </div>
+      `;
+    }).join('');
+  });
 }
 
 /**
@@ -741,10 +869,628 @@ function configurarExportacaoImportacao() {
   });
 }
 
+/**
+ * 12. Pipeline Kanban & Roleta de Corretores
+ */
+function configurarPipelineKanbanERoleta() {
+  const btnToggleKanban = document.getElementById('btn-toggle-kanban');
+  const btnToggleTabela = document.getElementById('btn-toggle-tabela');
+  const visaoKanban = document.getElementById('visao-kanban-leads');
+  const visaoTabela = document.getElementById('visao-tabela-leads');
+
+  btnToggleKanban?.addEventListener('click', () => {
+    visaoKanban?.classList.remove('hidden');
+    visaoTabela?.classList.add('hidden');
+    btnToggleKanban.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+    btnToggleKanban.classList.remove('text-slate-600');
+    btnToggleTabela.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+    btnToggleTabela.classList.add('text-slate-600');
+    renderizarPipelineKanban();
+  });
+
+  btnToggleTabela?.addEventListener('click', () => {
+    visaoTabela?.classList.remove('hidden');
+    visaoKanban?.classList.add('hidden');
+    btnToggleTabela.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+    btnToggleTabela.classList.remove('text-slate-600');
+    btnToggleKanban.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+    btnToggleKanban.classList.add('text-slate-600');
+    renderizarTabelaLeads();
+  });
+
+  // Modal Novo Lead
+  document.getElementById('btn-novo-lead-manual')?.addEventListener('click', () => {
+    document.getElementById('modal-novo-lead')?.classList.add('active');
+  });
+
+  document.getElementById('form-salvar-lead')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('input-lead-nome')?.value.trim();
+    const whatsapp = document.getElementById('input-lead-whatsapp')?.value.trim();
+    const email = document.getElementById('input-lead-email')?.value.trim();
+    const origem = document.getElementById('input-lead-origem')?.value;
+    const etapa = document.getElementById('input-lead-etapa')?.value;
+    const imovelTitulo = document.getElementById('input-lead-imovel')?.value.trim();
+    const valorNegocio = parseFloat(document.getElementById('input-lead-valor')?.value) || 500000;
+    const mensagem = document.getElementById('input-lead-msg')?.value.trim();
+
+    DB.adicionarLead({
+      nome,
+      whatsapp,
+      email,
+      origem,
+      etapa,
+      imovelTitulo: imovelTitulo || 'Interesse Geral',
+      valorNegocio,
+      mensagem: mensagem || 'Cadastrado manualmente via painel administrativo'
+    });
+
+    document.getElementById('modal-novo-lead')?.classList.remove('active');
+    document.getElementById('form-salvar-lead')?.reset();
+    renderizarPipelineKanban();
+    renderizarTabelaLeads();
+    renderizarRoletaCorretores();
+    carregarMetricasDashboard();
+  });
+
+  // Modal Novo Corretor
+  document.getElementById('btn-cadastrar-corretor')?.addEventListener('click', () => {
+    document.getElementById('modal-novo-corretor')?.classList.add('active');
+  });
+
+  document.getElementById('form-salvar-corretor')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('input-corretor-nome')?.value.trim();
+    const creci = document.getElementById('input-corretor-creci')?.value.trim();
+    const whatsapp = document.getElementById('input-corretor-wa')?.value.trim();
+    const especialidade = document.getElementById('input-corretor-especialidade')?.value.trim();
+
+    DB.adicionarCorretor({
+      nome,
+      creci,
+      whatsapp,
+      especialidade: especialidade || 'Atendimento Geral',
+      ativo: true,
+      leadsAtendidos: 0
+    });
+
+    document.getElementById('modal-novo-corretor')?.classList.remove('active');
+    document.getElementById('form-salvar-corretor')?.reset();
+    renderizarRoletaCorretores();
+  });
+}
+
+function renderizarRoletaCorretores() {
+  const container = document.getElementById('grid-corretores-roleta');
+  if (!container) return;
+
+  const corretores = DB.getCorretores();
+  container.innerHTML = corretores.map(c => `
+    <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <img src="${c.foto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="w-11 h-11 rounded-full object-cover border border-slate-300">
+        <div>
+          <h5 class="font-bold text-slate-900 text-xs">${c.nome}</h5>
+          <div class="text-[11px] text-slate-500 font-semibold">${c.creci} • ${c.especialidade}</div>
+          <span class="text-[10px] text-blue-700 font-bold">🎯 ${c.leadsAtendidos || 0} leads recebidos</span>
+        </div>
+      </div>
+      <div class="flex flex-col items-end gap-1.5">
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${c.ativo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
+          ${c.ativo ? '● Na Roleta' : '○ Pausado'}
+        </span>
+        <button onclick="alternarStatusCorretor('${c.id}')" class="text-[10px] text-slate-400 hover:text-slate-700 font-semibold underline">
+          ${c.ativo ? 'Pausar' : 'Ativar'}
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function alternarStatusCorretor(id) {
+  const corretores = DB.getCorretores();
+  const c = corretores.find(item => item.id === id);
+  if (c) {
+    c.ativo = !c.ativo;
+    DB.salvarCorretores(corretores);
+    renderizarRoletaCorretores();
+    renderizarPipelineKanban();
+  }
+}
+
+/**
+ * 13. Gestão de Locação, Repasses Financeiros e Exportação DIMOB
+ */
+function configurarGestaoLocacao() {
+  document.getElementById('btn-novo-contrato')?.addEventListener('click', () => {
+    document.getElementById('modal-novo-contrato')?.classList.add('active');
+  });
+
+  document.getElementById('form-salvar-contrato')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const codigo = document.getElementById('input-contrato-codigo')?.value.trim();
+    const imovelCodigo = document.getElementById('input-contrato-imovel')?.value.trim();
+    const diaVencimento = parseInt(document.getElementById('input-contrato-venc')?.value) || 10;
+    const inquilinoNome = document.getElementById('input-contrato-inq-nome')?.value.trim();
+    const inquilinoDocumento = document.getElementById('input-contrato-inq-doc')?.value.trim();
+    const inquilinoTelefone = document.getElementById('input-contrato-inq-tel')?.value.trim();
+    const proprietarioNome = document.getElementById('input-contrato-prop-nome')?.value.trim();
+    const proprietarioDocumento = document.getElementById('input-contrato-prop-doc')?.value.trim();
+    const proprietarioPix = document.getElementById('input-contrato-prop-pix')?.value.trim();
+    const valorAluguel = parseFloat(document.getElementById('input-contrato-aluguel')?.value) || 0;
+    const taxaAdmPercentual = parseFloat(document.getElementById('input-contrato-taxa')?.value) || 10;
+    const condominio = parseFloat(document.getElementById('input-contrato-condo')?.value) || 0;
+
+    DB.adicionarContratoLocacao({
+      codigo,
+      imovelCodigo,
+      imovelTitulo: `Imóvel Ref. ${imovelCodigo}`,
+      diaVencimento,
+      inquilinoNome,
+      inquilinoDocumento,
+      inquilinoTelefone,
+      proprietarioNome,
+      proprietarioDocumento,
+      proprietarioPix,
+      valorAluguel,
+      taxaAdmPercentual,
+      condominio,
+      dataInicio: new Date().toLocaleDateString('pt-BR'),
+      dataFim: 'Indeterminado'
+    });
+
+    document.getElementById('modal-novo-contrato')?.classList.remove('active');
+    document.getElementById('form-salvar-contrato')?.reset();
+    renderizarGestaoLocacao();
+    alert('Contrato de locação cadastrado com sucesso!');
+  });
+
+  // Exportar DIMOB
+  document.getElementById('btn-exportar-dimob')?.addEventListener('click', () => {
+    const dimobTxt = DB.exportarDimob(2026);
+    const blob = new Blob([dimobTxt], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `DIMOB_2026_${DB.getConfig().nome.replace(/\s+/g, '_').toUpperCase()}.txt`;
+    a.click();
+    alert('📄 Arquivo da Declaração DIMOB 2026 gerado com sucesso para envio à Receita Federal!');
+  });
+}
+
+function renderizarGestaoLocacao() {
+  const metricas = DB.calcularMetricasLocacao();
+  const contratos = DB.getContratosLocacao();
+
+  const elTotal = document.getElementById('loc-total-alugueis');
+  const elRepasses = document.getElementById('loc-total-repasses');
+  const elReceita = document.getElementById('loc-receita-adm');
+  const elAdimp = document.getElementById('loc-adimplencia');
+
+  if (elTotal) elTotal.textContent = `R$ ${metricas.totalAlugueis.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  if (elRepasses) elRepasses.textContent = `R$ ${metricas.totalRepasses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  if (elReceita) elReceita.textContent = `R$ ${metricas.taxaAdmTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  if (elAdimp) elAdimp.textContent = `${metricas.taxaAdimplencia}%`;
+
+  const container = document.getElementById('tabela-contratos-corpo');
+  if (!container) return;
+
+  if (contratos.length === 0) {
+    container.innerHTML = `
+      <tr>
+        <td colspan="7" class="py-12 text-center text-slate-400 text-sm">
+          Nenhum contrato de locação ativo no momento.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  container.innerHTML = contratos.map(c => {
+    const statusClass = c.statusMes === 'Pago'
+      ? 'bg-emerald-100 text-emerald-800'
+      : (c.statusMes === 'Atrasado' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800');
+
+    return `
+      <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
+        <td class="py-3 px-4">
+          <span class="font-mono font-bold text-blue-600 text-xs">${c.codigo}</span>
+          <div class="text-[11px] text-slate-500 font-semibold line-clamp-1">${c.imovelCodigo} - ${c.imovelTitulo}</div>
+        </td>
+        <td class="py-3 px-4">
+          <div class="font-bold text-slate-900 text-xs">${c.inquilinoNome}</div>
+          <div class="text-[10px] text-slate-400 font-mono">${c.inquilinoDocumento}</div>
+        </td>
+        <td class="py-3 px-4">
+          <div class="font-bold text-slate-900 text-xs">${c.proprietarioNome}</div>
+          <div class="text-[10px] text-slate-400 font-mono">${c.proprietarioDocumento}</div>
+        </td>
+        <td class="py-3 px-4">
+          <div class="font-black text-slate-900 text-xs">R$ ${c.valorAluguel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+          <div class="text-[10px] text-blue-600 font-bold">Taxa ADM: R$ ${c.taxaAdmValor.toLocaleString('pt-BR')} (${c.taxaAdmPercentual}%)</div>
+        </td>
+        <td class="py-3 px-4 font-black text-emerald-600 text-xs">
+          R$ ${c.valorRepasseLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+        </td>
+        <td class="py-3 px-4">
+          <div class="text-[11px] text-slate-500 font-semibold mb-1">Dia ${c.diaVencimento}</div>
+          <select onchange="alterarStatusContratoRapido('${c.id}', this.value)" class="text-[10px] font-bold rounded-lg px-2 py-0.5 border border-slate-200 ${statusClass}">
+            <option value="Pago" ${c.statusMes === 'Pago' ? 'selected' : ''}>✅ Pago</option>
+            <option value="Aguardando" ${c.statusMes === 'Aguardando' ? 'selected' : ''}>⏳ Aguardando</option>
+            <option value="Atrasado" ${c.statusMes === 'Atrasado' ? 'selected' : ''}>⚠️ Atrasado</option>
+          </select>
+        </td>
+        <td class="py-3 px-4 text-right">
+          <div class="flex items-center justify-end gap-1 flex-wrap">
+            <button onclick="abrirReciboInquilino('${c.id}')" class="bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 text-[10px] font-bold px-2 py-1 rounded-lg transition" title="Emitir Recibo Oficial">
+              🧾 Recibo
+            </button>
+            <button onclick="abrirExtratoProprietario('${c.id}')" class="bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-lg transition" title="Extrato de Repasse">
+              📊 Extrato
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function alterarStatusContratoRapido(id, novoStatus) {
+  DB.atualizarStatusContrato(id, novoStatus);
+  renderizarGestaoLocacao();
+}
+
+function abrirReciboInquilino(contratoId) {
+  const contrato = DB.getContratosLocacao().find(c => c.id === contratoId);
+  if (!contrato) return;
+
+  const config = DB.getConfig();
+  const container = document.getElementById('recibo-locacao-imprimir-conteudo');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 text-slate-800">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900">${config.nome.toUpperCase()}</h3>
+          <p class="text-xs text-slate-500">${config.creci} • ${config.endereco}</p>
+        </div>
+        <span class="text-xs font-mono font-black bg-blue-50 text-blue-700 px-3 py-1 rounded-lg border border-blue-200">
+          RECIBO DE ALUGUEL #${contrato.codigo}
+        </span>
+      </div>
+
+      <div class="text-xs leading-relaxed">
+        <p>Recebemos de <strong>${contrato.inquilinoNome}</strong> (CPF/CNPJ: ${contrato.inquilinoDocumento}) a quantia de <strong>R$ ${(contrato.valorAluguel + (contrato.condominio || 0) + (contrato.iptu || 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> referente à locação do imóvel <strong>${contrato.imovelTitulo}</strong> (Cód. ${contrato.imovelCodigo}) com vencimento no dia <strong>${contrato.diaVencimento}</strong>.</p>
+      </div>
+
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+        <div class="flex justify-between"><span>Aluguel Base:</span><span class="font-bold">R$ ${contrato.valorAluguel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+        <div class="flex justify-between"><span>Condomínio Estimado:</span><span>R$ ${(contrato.condominio || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+        <div class="flex justify-between border-t border-slate-200 pt-1 font-black text-slate-900 text-sm"><span>TOTAL PAGO:</span><span class="text-emerald-600">R$ ${(contrato.valorAluguel + (contrato.condominio || 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+      </div>
+
+      <div class="pt-6 border-t border-slate-200 flex justify-between items-end text-[11px] text-slate-500">
+        <div>
+          Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}<br>
+          Autenticação Digital: ${Math.random().toString(36).substring(2, 10).toUpperCase()}
+        </div>
+        <div class="text-right">
+          __________________________________________<br>
+          ${config.nome} • Departamento Financeiro
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-recibo-locacao')?.classList.add('active');
+}
+
+function abrirExtratoProprietario(contratoId) {
+  const contrato = DB.getContratosLocacao().find(c => c.id === contratoId);
+  if (!contrato) return;
+
+  const config = DB.getConfig();
+  const container = document.getElementById('recibo-locacao-imprimir-conteudo');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 text-slate-800">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900">${config.nome.toUpperCase()}</h3>
+          <p class="text-xs text-slate-500">Extrato de Prestação de Contas ao Proprietário (Locador)</p>
+        </div>
+        <span class="text-xs font-mono font-black bg-emerald-50 text-emerald-800 px-3 py-1 rounded-lg border border-emerald-200">
+          CONTRATO #${contrato.codigo}
+        </span>
+      </div>
+
+      <div class="text-xs space-y-1">
+        <p><strong>Proprietário (Locador):</strong> ${contrato.proprietarioNome} (CPF: ${contrato.proprietarioDocumento})</p>
+        <p><strong>Inquilino:</strong> ${contrato.inquilinoNome}</p>
+        <p><strong>Imóvel:</strong> ${contrato.imovelTitulo} (${contrato.imovelCodigo})</p>
+        <p><strong>Chave PIX para Transferência:</strong> <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded font-bold">${contrato.proprietarioPix || 'Cadastrada no banco'}</span></p>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
+        <div class="flex justify-between"><span>(+) Aluguel Bruto Recebido:</span><span class="font-bold">R$ ${contrato.valorAluguel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+        <div class="flex justify-between text-rose-600"><span>(-) Taxa de Administração Imobiliária (${contrato.taxaAdmPercentual}%):</span><span class="font-bold">- R$ ${contrato.taxaAdmValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+        <div class="flex justify-between border-t border-slate-200 pt-2 font-black text-slate-900 text-sm">
+          <span>VALOR LÍQUIDO A REPASSAR:</span>
+          <span class="text-emerald-600">R$ ${contrato.valorRepasseLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+        </div>
+      </div>
+
+      <div class="pt-6 border-t border-slate-200 flex justify-between items-end text-[11px] text-slate-500">
+        <div>
+          Data de Fechamento: ${new Date().toLocaleDateString('pt-BR')}<br>
+          Informações integradas para a DIMOB anual.
+        </div>
+        <div class="text-right">
+          __________________________________________<br>
+          ${config.nome} • Gestão de Locação
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-recibo-locacao')?.classList.add('active');
+}
+
+/**
+ * 14. Vistorias Digitais de Imóveis (Laudo Técnico de Entrada e Saída)
+ */
+function configurarVistoriasDigitais() {
+  document.getElementById('btn-nova-vistoria')?.addEventListener('click', () => {
+    document.getElementById('modal-nova-vistoria')?.classList.add('active');
+  });
+
+  document.getElementById('form-salvar-vistoria')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const tipo = document.getElementById('input-vistoria-tipo')?.value;
+    const imovelCodigo = document.getElementById('input-vistoria-imovel')?.value.trim();
+    const vistoriador = document.getElementById('input-vistoria-responsavel')?.value.trim();
+    const inquilino = document.getElementById('input-vistoria-inquilino')?.value.trim();
+    const proprietario = document.getElementById('input-vistoria-proprietario')?.value.trim();
+    const chkPintura = document.getElementById('chk-pintura')?.value;
+    const chkPiso = document.getElementById('chk-piso')?.value;
+    const chkEletrica = document.getElementById('chk-eletrica')?.value;
+    const chkHidraulica = document.getElementById('chk-hidraulica')?.value;
+    const chaves = document.getElementById('input-vistoria-chaves')?.value.trim();
+    const obs = document.getElementById('input-vistoria-obs')?.value.trim();
+
+    DB.adicionarVistoria({
+      tipo,
+      imovelCodigo,
+      imovelTitulo: `Imóvel Ref. ${imovelCodigo}`,
+      dataVistoria: new Date().toLocaleDateString('pt-BR'),
+      vistoriador,
+      inquilino,
+      proprietario,
+      status: 'Aprovado',
+      comodos: [
+        { nome: 'Pintura Geral', status: chkPintura },
+        { nome: 'Pisos e Revestimentos', status: chkPiso },
+        { nome: 'Instalações Elétricas', status: chkEletrica },
+        { nome: 'Instalações Hidráulicas', status: chkHidraulica }
+      ],
+      chavesEntregues: chaves || 'Chaves entregues conforme contrato',
+      observacoes: obs || 'Imóvel em perfeitas condições de uso.'
+    });
+
+    document.getElementById('modal-nova-vistoria')?.classList.remove('active');
+    document.getElementById('form-salvar-vistoria')?.reset();
+    renderizarVistoriasDigitais();
+    alert('Laudo de Vistoria Digital registrado com sucesso!');
+  });
+}
+
+function renderizarVistoriasDigitais() {
+  const container = document.getElementById('grid-vistorias-lista');
+  if (!container) return;
+
+  const vistorias = DB.getVistorias();
+  if (vistorias.length === 0) {
+    container.innerHTML = '<p class="text-xs text-slate-400 py-6 text-center col-span-2">Nenhuma vistoria registrada.</p>';
+    return;
+  }
+
+  container.innerHTML = vistorias.map(v => {
+    const badgeTipo = v.tipo === 'Entrada'
+      ? '<span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Entrada</span>'
+      : '<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Saída</span>';
+
+    return `
+      <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-mono font-bold text-xs text-blue-600">${v.codigo}</span>
+              ${badgeTipo}
+              <span class="text-[10px] text-slate-400">${v.dataVistoria}</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-sm mt-1">${v.imovelCodigo} - ${v.imovelTitulo}</h4>
+            <p class="text-xs text-slate-500">Inquilino: ${v.inquilino} • Vistoriador: ${v.vistoriador}</p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
+          <div class="font-bold text-slate-700 text-[11px] uppercase">Itens Inspecionados:</div>
+          <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-600">
+            ${(v.comodos || []).map(c => `<div>• ${c.nome || c.comodo}: <span class="font-bold text-slate-800">${c.pintura || c.status || 'Bom'}</span></div>`).join('')}
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
+          <span class="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+            <span>✓</span> Laudo Digital Válido
+          </span>
+          <button onclick="abrirLaudoVistoria('${v.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition shadow flex items-center gap-1">
+            <span>🖨️ Visualizar Laudo</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function abrirLaudoVistoria(vistoriaId) {
+  const v = DB.getVistorias().find(item => item.id === vistoriaId);
+  if (!v) return;
+
+  const config = DB.getConfig();
+  const container = document.getElementById('recibo-locacao-imprimir-conteudo');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 text-slate-800">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900">${config.nome.toUpperCase()}</h3>
+          <p class="text-xs text-slate-500">Laudo Oficial de Vistoria de Imóvel (${v.tipo.toUpperCase()})</p>
+        </div>
+        <span class="text-xs font-mono font-black bg-blue-50 text-blue-700 px-3 py-1 rounded-lg border border-blue-200">
+          ${v.codigo}
+        </span>
+      </div>
+
+      <div class="text-xs space-y-1">
+        <p><strong>Imóvel:</strong> ${v.imovelTitulo} (Cód. ${v.imovelCodigo})</p>
+        <p><strong>Locatário (Inquilino):</strong> ${v.inquilino}</p>
+        <p><strong>Locador (Proprietário):</strong> ${v.proprietario}</p>
+        <p><strong>Vistoriador Credenciado:</strong> ${v.vistoriador}</p>
+        <p><strong>Data da Inspeção:</strong> ${v.dataVistoria}</p>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
+        <h5 class="font-bold text-slate-900 uppercase">Constatações Técnicas por Cômodo:</h5>
+        ${(v.comodos || []).map(c => `
+          <div class="border-b border-slate-200/60 pb-1.5">
+            <span class="font-bold text-slate-800">• ${c.nome || c.comodo}:</span> 
+            <span class="text-slate-600">Estado: ${c.pintura || c.status || 'Bom'} | Obs: ${c.obs || 'Conforme especificado sem danos aparentes.'}</span>
+          </div>
+        `).join('')}
+        <div class="pt-1">
+          <span class="font-bold text-slate-800">Chaves e Acessórios Entregues:</span> ${v.chavesEntregues || '3 cópias de chaves'}
+        </div>
+      </div>
+
+      <div class="text-[11px] text-slate-600 leading-relaxed italic bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+        "As partes signatárias declaram que inspecionaram conjuntamente o imóvel supra citado e concordam com os termos e estados de conservação descritos neste laudo técnico."
+      </div>
+
+      <div class="pt-6 border-t border-slate-200 grid grid-cols-2 gap-8 text-[11px] text-slate-500 text-center">
+        <div>
+          __________________________________________<br>
+          <strong>${v.inquilino}</strong><br>
+          Locatário
+        </div>
+        <div>
+          __________________________________________<br>
+          <strong>${v.vistoriador}</strong><br>
+          Vistoriador / Responsável
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-recibo-locacao')?.classList.add('active');
+}
+
+/**
+ * 15. Sofia IA: Chatbot e Atendimento 24h
+ */
+function configurarSofiaIA() {
+  document.getElementById('btn-salvar-sofia-config')?.addEventListener('click', () => {
+    const ativada = document.getElementById('cfg-sofia-ativa')?.checked;
+    const nome = document.getElementById('cfg-sofia-nome')?.value.trim();
+    const saudacao = document.getElementById('cfg-sofia-saudacao')?.value.trim();
+
+    DB.salvarSofiaConfig({
+      ativada,
+      nome: nome || 'Sofia IA',
+      mensagemBoasVindas: saudacao
+    });
+
+    alert('Configurações da Sofia IA salvas com sucesso!');
+  });
+
+  // Simulador ao Vivo no Painel
+  document.getElementById('form-simulador-chat')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('input-simulador-msg');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const chatCorpo = document.getElementById('simulador-chat-corpo');
+    if (!chatCorpo) return;
+
+    // Adiciona msg do usuário
+    chatCorpo.innerHTML += `
+      <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%] leading-relaxed">
+        ${msg}
+      </div>
+    `;
+    input.value = '';
+    chatCorpo.scrollTop = chatCorpo.scrollHeight;
+
+    // Processa com Sofia IA
+    setTimeout(() => {
+      const resposta = DB.processarMensagemSofiaIA(msg);
+      
+      let cardsHtml = '';
+      if (resposta.recomendacoes && resposta.recomendacoes.length > 0) {
+        cardsHtml = `
+          <div class="mt-2 space-y-1.5">
+            ${resposta.recomendacoes.map(im => `
+              <div class="p-2 bg-black/30 border border-white/10 rounded-xl flex items-center justify-between gap-2">
+                <div>
+                  <div class="font-bold text-white text-[11px]">${im.codigo} - ${im.titulo}</div>
+                  <div class="text-[10px] text-emerald-400 font-bold">R$ ${(im.preco || im.precoAluguel).toLocaleString('pt-BR')} • ${im.bairro}</div>
+                </div>
+                <a href="${resposta.waLink}" target="_blank" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg">
+                  Visitar
+                </a>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      chatCorpo.innerHTML += `
+        <div class="bg-white/10 text-slate-200 p-3 rounded-2xl rounded-tl-none max-w-[85%] leading-relaxed">
+          ${resposta.respostaTexto}
+          ${cardsHtml}
+        </div>
+      `;
+      chatCorpo.scrollTop = chatCorpo.scrollHeight;
+    }, 400);
+  });
+}
+
+function carregarSofiaConfigNoPainel() {
+  const config = DB.getSofiaConfig();
+  const chkAtiva = document.getElementById('cfg-sofia-ativa');
+  const inputNome = document.getElementById('cfg-sofia-nome');
+  const inputSaudacao = document.getElementById('cfg-sofia-saudacao');
+
+  if (chkAtiva) chkAtiva.checked = !!config.ativada;
+  if (inputNome) inputNome.value = config.nome || 'Sofia IA';
+  if (inputSaudacao) inputSaudacao.value = config.mensagemBoasVindas || '';
+}
+
 window.alterarStatusImovelRapido = alterarStatusImovelRapido;
 window.editarImovel = editarImovel;
 window.excluirImovel = excluirImovel;
 window.alterarStatusLeadRapido = alterarStatusLeadRapido;
+window.alterarEtapaLeadRapido = alterarEtapaLeadRapido;
+window.avancarEtapaLeadRapido = avancarEtapaLeadRapido;
+window.alternarStatusCorretor = alternarStatusCorretor;
+window.abrirReciboInquilino = abrirReciboInquilino;
+window.abrirExtratoProprietario = abrirExtratoProprietario;
+window.alterarStatusContratoRapido = alterarStatusContratoRapido;
+window.abrirLaudoVistoria = abrirLaudoVistoria;
 window.excluirLead = excluirLead;
 window.gerarCopySocialImovel = gerarCopySocialImovel;
 window.abrirModalMatching = abrirModalMatching;

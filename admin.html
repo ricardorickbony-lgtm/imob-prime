@@ -121,22 +121,31 @@
     <!-- Navegação de Abas do SaaS -->
     <div class="bg-white border-b border-slate-200 px-4 sm:px-8">
       <nav class="flex items-center gap-1 overflow-x-auto py-2">
-        <button data-tab="aba-dashboard" class="tab-admin-nav bg-blue-600 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-sm">
-          <span>📊 Dashboard & Métricas</span>
+        <button data-tab="aba-dashboard" class="tab-admin-nav bg-blue-600 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-sm whitespace-nowrap">
+          <span>📊 Dashboard</span>
         </button>
-        <button data-tab="aba-imoveis" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
-          <span>🏢 Gerenciar Imóveis</span>
+        <button data-tab="aba-imoveis" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
+          <span>🏢 Imóveis</span>
         </button>
-        <button data-tab="aba-portais" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
+        <button data-tab="aba-portais" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
           <span>🌐 Multi-Portais (ZAP, OLX...)</span>
         </button>
-        <button data-tab="aba-leads" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
-          <span>🎯 CRM de Leads & Matching</span>
+        <button data-tab="aba-leads" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
+          <span>🎯 Pipeline Kanban & Roleta</span>
         </button>
-        <button data-tab="aba-config" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
-          <span>⚙️ Configurações & Remarketing</span>
+        <button data-tab="aba-locacao" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
+          <span>🔑 Locação & DIMOB</span>
         </button>
-        <button data-tab="aba-backup" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
+        <button data-tab="aba-vistorias" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
+          <span>📋 Vistorias Digitais</span>
+        </button>
+        <button data-tab="aba-sofia" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
+          <span>🤖 Sofia IA (24h)</span>
+        </button>
+        <button data-tab="aba-config" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
+          <span>⚙️ Config & Pixel</span>
+        </button>
+        <button data-tab="aba-backup" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
           <span>💾 Backup & Reset</span>
         </button>
       </nav>
@@ -425,34 +434,142 @@
       </section>
 
       <!-- ===================================================================== -->
-      <!-- ABA 3: CRM DE LEADS & PROPOSTAS                                      -->
+      <!-- ABA 4: PIPELINE KANBAN DE VENDAS & ROLETA DE LEADS                    -->
       <!-- ===================================================================== -->
       <section id="aba-leads" class="painel-aba-conteudo hidden space-y-6">
         
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Header com KPIs de Vendas (Padrão WideSys) -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-bold text-slate-900">Pipeline de Leads & Propostas</h2>
-            <p class="text-xs text-slate-500">Acompanhe interessados capturados pelo botão de WhatsApp e formulários</p>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <span>Pipeline Comercial de Vendas & Roleta de Leads</span>
+              <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase">Funil Pro</span>
+            </h2>
+            <p class="text-xs text-slate-500">Acompanhe a evolução de cada oportunidade do primeiro contato ao fechamento</p>
           </div>
 
-          <div class="flex items-center gap-3">
-            <button id="btn-exportar-leads-csv" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              <span>Exportar para Excel (CSV)</span>
+          <!-- Botões de Ação e Alternador de Visão -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
+              <button id="btn-toggle-kanban" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition">
+                🗂️ Kanban
+              </button>
+              <button id="btn-toggle-tabela" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                📋 Tabela
+              </button>
+            </div>
+            <button id="btn-novo-lead-manual" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+              <span>+ Novo Lead</span>
+            </button>
+            <button id="btn-exportar-leads-csv" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5" title="Exportar leads para planilha">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>CSV</span>
             </button>
           </div>
         </div>
 
-        <!-- Tabela do CRM -->
-        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <!-- Cards de Indicadores do Pipeline -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pipeline em Negociação</span>
+            <span id="kpi-pipeline-vgv" class="text-xl font-black text-slate-900 mt-0.5 block">R$ 0</span>
+            <span class="text-[10px] text-blue-600 font-semibold mt-0.5 block">Em aberto no funil</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Taxa de Conversão</span>
+            <span id="kpi-pipeline-conversao" class="text-xl font-black text-emerald-600 mt-0.5 block">0%</span>
+            <span class="text-[10px] text-slate-500 font-semibold mt-0.5 block">Leads convertidos em venda</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tempo Médio de Fechamento</span>
+            <span id="kpi-pipeline-tempo" class="text-xl font-black text-purple-600 mt-0.5 block">14 dias</span>
+            <span class="text-[10px] text-slate-500 font-semibold mt-0.5 block">Ciclo comercial</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Roleta de Corretores</span>
+            <span id="kpi-roleta-status" class="text-xl font-black text-amber-600 mt-0.5 block">Ativa</span>
+            <span class="text-[10px] text-emerald-600 font-bold mt-0.5 block">Distribuição inteligente</span>
+          </div>
+        </div>
+
+        <!-- VISÃO 1: PIPELINE KANBAN (PADRÃO WIDESYS) -->
+        <div id="visao-kanban-leads" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 overflow-x-auto pb-4">
+            
+            <!-- Coluna 1: Novos Leads -->
+            <div class="bg-slate-100/80 rounded-2xl p-3 border border-slate-200 min-w-[240px] flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                  <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Novos Leads</span>
+                </div>
+                <span id="badge-count-novo" class="text-[11px] font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">0</span>
+              </div>
+              <div id="coluna-leads-novo" class="space-y-2 flex-grow min-h-[160px]"></div>
+            </div>
+
+            <!-- Coluna 2: Em Contato -->
+            <div class="bg-slate-100/80 rounded-2xl p-3 border border-slate-200 min-w-[240px] flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                  <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Em Contato</span>
+                </div>
+                <span id="badge-count-contato" class="text-[11px] font-black bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">0</span>
+              </div>
+              <div id="coluna-leads-contato" class="space-y-2 flex-grow min-h-[160px]"></div>
+            </div>
+
+            <!-- Coluna 3: Visita Agendada -->
+            <div class="bg-slate-100/80 rounded-2xl p-3 border border-slate-200 min-w-[240px] flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                  <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Visita</span>
+                </div>
+                <span id="badge-count-visita" class="text-[11px] font-black bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">0</span>
+              </div>
+              <div id="coluna-leads-visita" class="space-y-2 flex-grow min-h-[160px]"></div>
+            </div>
+
+            <!-- Coluna 4: Proposta / Negociação -->
+            <div class="bg-slate-100/80 rounded-2xl p-3 border border-slate-200 min-w-[240px] flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                  <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Proposta</span>
+                </div>
+                <span id="badge-count-proposta" class="text-[11px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">0</span>
+              </div>
+              <div id="coluna-leads-proposta" class="space-y-2 flex-grow min-h-[160px]"></div>
+            </div>
+
+            <!-- Coluna 5: Fechado / Ganho -->
+            <div class="bg-emerald-50/60 rounded-2xl p-3 border border-emerald-200 min-w-[240px] flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-emerald-200">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span class="text-xs font-black text-emerald-900 uppercase tracking-wider">Fechado 🏆</span>
+                </div>
+                <span id="badge-count-fechado" class="text-[11px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">0</span>
+              </div>
+              <div id="coluna-leads-fechado" class="space-y-2 flex-grow min-h-[160px]"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- VISÃO 2: TABELA DE LEADS (ALTERNÁVEL) -->
+        <div id="visao-tabela-leads" class="hidden bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th class="py-3 px-4">Data</th>
-                  <th class="py-3 px-4">Nome do Lead / WhatsApp</th>
-                  <th class="py-3 px-4">Imóvel / Interesse</th>
-                  <th class="py-3 px-4">Status no CRM</th>
+                  <th class="py-3 px-4">Data / Temperatura</th>
+                  <th class="py-3 px-4">Nome do Lead / Contato</th>
+                  <th class="py-3 px-4">Imóvel / Origem</th>
+                  <th class="py-3 px-4">Corretor Atribuído</th>
+                  <th class="py-3 px-4">Etapa do Funil</th>
                   <th class="py-3 px-4 text-right">Ação Direta</th>
                 </tr>
               </thead>
@@ -461,6 +578,203 @@
               </tbody>
             </table>
           </div>
+        </div>
+
+        <!-- SEÇÃO: ROLETA DE DISTRIBUIÇÃO DE LEADS (ROUND-ROBIN) -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                <span>🔄 Roleta de Corretores (Distribuição Automática de Leads)</span>
+              </h3>
+              <p class="text-xs text-slate-500">Os leads recebidos pelo site e WhatsApp são direcionados em rodízio justo e transparente</p>
+            </div>
+            <button id="btn-cadastrar-corretor" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-sm">
+              + Cadastrar Corretor na Roleta
+            </button>
+          </div>
+
+          <div id="grid-corretores-roleta" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- Populado via JS -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 5: GESTÃO DE LOCAÇÃO, REPASSES & DIMOB (Padrão WideSys)            -->
+      <!-- ===================================================================== -->
+      <section id="aba-locacao" class="painel-aba-conteudo hidden space-y-6">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <span>Gestão de Locação, Repasses & Relatório DIMOB</span>
+              <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase">Financeiro Pro</span>
+            </h2>
+            <p class="text-xs text-slate-500">Contratos ativos, controle de recebimento de aluguéis, repasses e declaração para a Receita Federal</p>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="btn-novo-contrato" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5">
+              <span>+ Novo Contrato de Locação</span>
+            </button>
+            <button id="btn-exportar-dimob" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>📄 Exportar DIMOB (Receita Federal)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Indicadores Financeiros da Locação -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Aluguéis no Mês</span>
+            <span id="loc-total-alugueis" class="text-xl font-black text-slate-900 mt-0.5 block">R$ 0</span>
+            <span class="text-[10px] text-slate-500 font-semibold mt-0.5 block">Faturamento Bruto</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Repasse a Proprietários</span>
+            <span id="loc-total-repasses" class="text-xl font-black text-emerald-600 mt-0.5 block">R$ 0</span>
+            <span class="text-[10px] text-slate-500 font-semibold mt-0.5 block">Líquido a Transferir</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Taxa ADM Imobiliária</span>
+            <span id="loc-receita-adm" class="text-xl font-black text-blue-600 mt-0.5 block">R$ 0</span>
+            <span class="text-[10px] text-blue-600 font-bold mt-0.5 block">Receita Líquida da Agência</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Taxa de Adimplência</span>
+            <span id="loc-adimplencia" class="text-xl font-black text-purple-600 mt-0.5 block">100%</span>
+            <span class="text-[10px] text-emerald-600 font-bold mt-0.5 block">Contratos em dia</span>
+          </div>
+        </div>
+
+        <!-- Tabela de Contratos Ativos -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Contrato / Imóvel</th>
+                  <th class="py-3 px-4">Inquilino</th>
+                  <th class="py-3 px-4">Proprietário (Locador)</th>
+                  <th class="py-3 px-4">Aluguel / Taxa ADM</th>
+                  <th class="py-3 px-4">Repasse Líquido</th>
+                  <th class="py-3 px-4">Vencimento / Status</th>
+                  <th class="py-3 px-4 text-right">Documentos & Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-contratos-corpo" class="text-xs">
+                <!-- Populado via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 6: VISTORIAS DIGITAIS DE IMÓVEIS (Laudos Técnicos)                 -->
+      <!-- ===================================================================== -->
+      <section id="aba-vistorias" class="painel-aba-conteudo hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <span>Vistorias Digitais de Imóveis</span>
+              <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full uppercase">Laudo Técnico</span>
+            </h2>
+            <p class="text-xs text-slate-500">Checklist detalhado por cômodo para entrada e saída com garantia jurídica</p>
+          </div>
+
+          <button id="btn-nova-vistoria" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5">
+            <span>+ Nova Vistoria Digital</span>
+          </button>
+        </div>
+
+        <div id="grid-vistorias-lista" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populado via JS -->
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA 7: SOFIA IA — ATENDIMENTO NO WHATSAPP 24H (Padrão Tais IA)        -->
+      <!-- ===================================================================== -->
+      <section id="aba-sofia" class="painel-aba-conteudo hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <span>Sofia IA — Assistente de Atendimento 24h</span>
+              <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online no Site e WhatsApp
+              </span>
+            </h2>
+            <p class="text-xs text-slate-500">Inteligência artificial treinada para qualificar leads, sugerir imóveis e agendar visitas no WhatsApp</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- Coluna 1: Configuração da IA -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-900 text-sm">Configuração da Sofia IA</h3>
+            
+            <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div>
+                <span class="font-bold text-slate-900 text-xs block">Ativar Chatbot Sofia IA no Site</span>
+                <span class="text-[11px] text-slate-500">Exibe o widget flutuante de atendimento interativo</span>
+              </div>
+              <input type="checkbox" id="cfg-sofia-ativa" checked class="w-5 h-5 text-blue-600 rounded">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome da Assistente</label>
+              <input type="text" id="cfg-sofia-nome" value="Sofia IA" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mensagem de Boas-Vindas</label>
+              <textarea id="cfg-sofia-saudacao" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs leading-relaxed"></textarea>
+            </div>
+
+            <button id="btn-salvar-sofia-config" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl transition shadow">
+              Salvar Configurações da IA
+            </button>
+          </div>
+
+          <!-- Coluna 2: Simulador da Sofia IA em Tempo Real -->
+          <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col h-[480px]">
+            <div class="flex items-center gap-3 border-b border-white/10 pb-3 mb-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white font-bold flex items-center justify-center text-sm shadow">
+                S
+              </div>
+              <div>
+                <h4 class="font-bold text-white text-xs">Simulador da Sofia IA (Demonstração)</h4>
+                <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Resposta em tempo real
+                </span>
+              </div>
+            </div>
+
+            <!-- Corpo de Mensagens do Chat -->
+            <div id="simulador-chat-corpo" class="flex-grow overflow-y-auto space-y-3 pr-2 text-xs">
+              <div class="bg-white/10 text-slate-200 p-3 rounded-2xl rounded-tl-none max-w-[85%] leading-relaxed">
+                Olá! Sou a Sofia da Prime Imóveis. O que você procura hoje: Comprar ou Alugar? Pode me dizer a cidade ou bairro da sua preferência!
+              </div>
+            </div>
+
+            <!-- Input do Chat de Teste -->
+            <form id="form-simulador-chat" class="mt-3 flex items-center gap-2 pt-3 border-t border-white/10">
+              <input type="text" id="input-simulador-msg" placeholder="Ex: Procuro apartamento no Campestre para comprar..." class="flex-grow bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400">
+              <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl transition">
+                Enviar
+              </button>
+            </form>
+          </div>
+
         </div>
 
       </section>
@@ -815,6 +1129,342 @@
 
       </form>
 
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE NOVO LEAD MANUAL                                                 -->
+  <!-- ========================================================================= -->
+  <div id="modal-novo-lead" class="modal-overlay">
+    <div class="modal-content relative !max-w-lg p-6 sm:p-8 space-y-5">
+      <button onclick="document.getElementById('modal-novo-lead').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div>
+        <h3 class="text-lg font-black text-slate-900">Cadastrar Novo Lead</h3>
+        <p class="text-xs text-slate-500">Adicione uma oportunidade manualmente para entrar no funil do CRM</p>
+      </div>
+
+      <form id="form-salvar-lead" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Nome Completo do Cliente</label>
+          <input type="text" id="input-lead-nome" required placeholder="Ex: Dr. Roberto Guimarães" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">WhatsApp / Telefone</label>
+            <input type="text" id="input-lead-whatsapp" required placeholder="5511999999999" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">E-mail</label>
+            <input type="email" id="input-lead-email" placeholder="cliente@email.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Origem do Lead</label>
+            <select id="input-lead-origem" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+              <option value="Instagram Ads">Instagram Ads</option>
+              <option value="Facebook Ads">Facebook Ads</option>
+              <option value="Google Ads">Google Ads</option>
+              <option value="ZAP Imóveis">ZAP Imóveis</option>
+              <option value="VivaReal">VivaReal</option>
+              <option value="OLX">OLX</option>
+              <option value="Site Direto">Site Direto</option>
+              <option value="Indicação">Indicação</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Etapa Inicial</label>
+            <select id="input-lead-etapa" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+              <option value="novo">📥 Novo Lead</option>
+              <option value="contato">💬 Em Contato</option>
+              <option value="visita">📅 Visita Agendada</option>
+              <option value="proposta">📑 Proposta</option>
+              <option value="fechado">🏆 Fechado</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Imóvel de Interesse (Código ou Título)</label>
+          <input type="text" id="input-lead-imovel" placeholder="Ex: CB-9021 - Cobertura Duplex" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Valor Estimado do Negócio (R$)</label>
+          <input type="number" id="input-lead-valor" placeholder="Ex: 850000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-blue-600">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Notas / Observações</label>
+          <textarea id="input-lead-msg" rows="2" placeholder="Ex: Cliente tem imóvel para dar na troca e pré-aprovação de crédito no Itaú." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="document.getElementById('modal-novo-lead').classList.remove('active')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2 rounded-xl transition shadow">
+            Salvar Lead
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE NOVO CORRETOR NA ROLETA                                          -->
+  <!-- ========================================================================= -->
+  <div id="modal-novo-corretor" class="modal-overlay">
+    <div class="modal-content relative !max-w-md p-6 sm:p-8 space-y-5">
+      <button onclick="document.getElementById('modal-novo-corretor').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div>
+        <h3 class="text-lg font-black text-slate-900">Cadastrar Corretor na Roleta</h3>
+        <p class="text-xs text-slate-500">Adicione um profissional para receber leads automaticamente</p>
+      </div>
+
+      <form id="form-salvar-corretor" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Nome do Corretor</label>
+          <input type="text" id="input-corretor-nome" required placeholder="Ex: Roberto Silva" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">CRECI</label>
+            <input type="text" id="input-corretor-creci" required placeholder="Ex: 215.890-F" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">WhatsApp</label>
+            <input type="text" id="input-corretor-wa" required placeholder="5511970558412" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Especialidade / Foco</label>
+          <input type="text" id="input-corretor-especialidade" placeholder="Ex: Lançamentos & Médio Padrão" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="document.getElementById('modal-novo-corretor').classList.remove('active')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2 rounded-xl transition shadow">
+            Ativar na Roleta
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE NOVO CONTRATO DE LOCAÇÃO                                         -->
+  <!-- ========================================================================= -->
+  <div id="modal-novo-contrato" class="modal-overlay">
+    <div class="modal-content relative !max-w-2xl p-6 sm:p-8 space-y-5">
+      <button onclick="document.getElementById('modal-novo-contrato').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div>
+        <h3 class="text-lg font-black text-slate-900">Novo Contrato de Locação & Repasse</h3>
+        <p class="text-xs text-slate-500">Cadastre os dados da locação com cálculo automático de taxa e repasse para o DIMOB</p>
+      </div>
+
+      <form id="form-salvar-contrato" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Código Contrato</label>
+            <input type="text" id="input-contrato-codigo" required placeholder="CTR-120" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-blue-600">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Cód. do Imóvel</label>
+            <input type="text" id="input-contrato-imovel" required placeholder="AP-4102" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Dia Vencimento</label>
+            <input type="number" id="input-contrato-venc" value="10" min="1" max="31" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+          <div>
+            <h5 class="font-bold text-slate-800 text-xs mb-2">Dados do Inquilino (Locatário)</h5>
+            <div class="space-y-2">
+              <input type="text" id="input-contrato-inq-nome" required placeholder="Nome Completo do Inquilino" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+              <input type="text" id="input-contrato-inq-doc" required placeholder="CPF ou CNPJ" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+              <input type="text" id="input-contrato-inq-tel" placeholder="WhatsApp / Telefone" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+            </div>
+          </div>
+          <div>
+            <h5 class="font-bold text-slate-800 text-xs mb-2">Dados do Proprietário (Locador)</h5>
+            <div class="space-y-2">
+              <input type="text" id="input-contrato-prop-nome" required placeholder="Nome do Proprietário" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+              <input type="text" id="input-contrato-prop-doc" required placeholder="CPF ou CNPJ (para DIMOB)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+              <input type="text" id="input-contrato-prop-pix" placeholder="Chave PIX para Repasse" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Aluguel Bruto (R$)</label>
+            <input type="number" id="input-contrato-aluguel" required placeholder="3500" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Taxa ADM (%)</label>
+            <input type="number" id="input-contrato-taxa" value="10" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-blue-600">
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label class="block font-bold text-slate-700 uppercase mb-1">Condomínio (R$)</label>
+            <input type="number" id="input-contrato-condo" placeholder="0" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="document.getElementById('modal-novo-contrato').classList.remove('active')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2 rounded-xl transition shadow">
+            Ativar Contrato
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE RECIBO / EXTRATO DE LOCAÇÃO (PARA IMPRESSÃO E WHATSAPP)          -->
+  <!-- ========================================================================= -->
+  <div id="modal-recibo-locacao" class="modal-overlay">
+    <div class="modal-content relative !max-w-2xl p-6 sm:p-8 space-y-6">
+      <button onclick="document.getElementById('modal-recibo-locacao').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div id="recibo-locacao-imprimir-conteudo" class="space-y-4">
+        <!-- Inserido dinamicamente via JS -->
+      </div>
+
+      <div class="pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
+        <button onclick="window.print()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-1.5">
+          <span>🖨️ Imprimir Recibo / Salvar PDF</span>
+        </button>
+        <button onclick="document.getElementById('modal-recibo-locacao').classList.remove('active')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE NOVA VISTORIA DIGITAL                                            -->
+  <!-- ========================================================================= -->
+  <div id="modal-nova-vistoria" class="modal-overlay">
+    <div class="modal-content relative !max-w-2xl p-6 sm:p-8 space-y-5">
+      <button onclick="document.getElementById('modal-nova-vistoria').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div>
+        <h3 class="text-lg font-black text-slate-900">Nova Vistoria Técnica Digital</h3>
+        <p class="text-xs text-slate-500">Gere o laudo de constatação de entrada ou saída do imóvel com validade legal</p>
+      </div>
+
+      <form id="form-salvar-vistoria" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Tipo de Vistoria</label>
+            <select id="input-vistoria-tipo" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold">
+              <option value="Entrada">Vistoria de Entrada (Início)</option>
+              <option value="Saída">Vistoria de Saída (Entrega de Chaves)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Cód. do Imóvel</label>
+            <input type="text" id="input-vistoria-imovel" required placeholder="Ex: CB-9021" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Vistoriador Responsável</label>
+            <input type="text" id="input-vistoria-responsavel" required placeholder="Nome e CRECI" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Nome do Inquilino</label>
+            <input type="text" id="input-vistoria-inquilino" required placeholder="Nome do inquilino" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Nome do Proprietário</label>
+            <input type="text" id="input-vistoria-proprietario" required placeholder="Nome do proprietário" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          </div>
+        </div>
+
+        <!-- Checklist de Conservação Rápido -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <h5 class="font-bold text-slate-800 text-xs">Checklist de Itens Essenciais</h5>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div>
+              <span class="text-[10px] text-slate-500 uppercase font-bold block">Pintura</span>
+              <select id="chk-pintura" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 text-xs font-semibold">
+                <option value="Novo">Novo</option>
+                <option value="Bom">Bom</option>
+                <option value="Regular">Regular</option>
+                <option value="Necessita Pintura">Necessita Pintura</option>
+              </select>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-500 uppercase font-bold block">Pisos / Rodapés</span>
+              <select id="chk-piso" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 text-xs font-semibold">
+                <option value="Excelente">Excelente</option>
+                <option value="Bom">Bom</option>
+                <option value="Com Riscos">Com Riscos</option>
+              </select>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-500 uppercase font-bold block">Elétrica / Tomadas</span>
+              <select id="chk-eletrica" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 text-xs font-semibold">
+                <option value="100% Operante">100% Operante</option>
+                <option value="Parcial">Parcial</option>
+              </select>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-500 uppercase font-bold block">Hidráulica</span>
+              <select id="chk-hidraulica" class="w-full bg-white border border-slate-300 rounded-lg p-1.5 text-xs font-semibold">
+                <option value="Sem Vazamentos">Sem Vazamentos</option>
+                <option value="Com Reparo Pendente">Com Reparo Pendente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Chaves e Controles Entregues</label>
+          <input type="text" id="input-vistoria-chaves" placeholder="Ex: 3 chaves da porta principal, 2 de serviço e 2 controles de portão" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Observações e Avarias Notadas</label>
+          <textarea id="input-vistoria-obs" rows="2" placeholder="Ex: Pequeno risco no rodapé do quarto 2; espelhos de tomadas novos..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="document.getElementById('modal-nova-vistoria').classList.remove('active')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2 rounded-xl transition shadow">
+            Emitir Laudo
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
