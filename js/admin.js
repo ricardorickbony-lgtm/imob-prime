@@ -303,6 +303,32 @@ function configurarFormularioImovel() {
     modal.classList.remove('active');
   });
 
+  // Upload direto de fotos do computador/celular (sem limite de quantidade)
+  const uploadInput = document.getElementById('input-upload-fotos-arquivo');
+  uploadInput?.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    if (!files || files.length === 0) return;
+
+    const textareaFotos = document.getElementById('input-imob-fotos');
+    const inputFotoPrincipal = document.getElementById('input-imob-foto-principal');
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        if (!inputFotoPrincipal.value) {
+          inputFotoPrincipal.value = dataUrl;
+        }
+        if (textareaFotos.value.trim()) {
+          textareaFotos.value += '\n' + dataUrl;
+        } else {
+          textareaFotos.value = dataUrl;
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
   document.getElementById('busca-admin-imoveis')?.addEventListener('input', renderizarTabelaImoveis);
 
   form?.addEventListener('submit', (e) => {
