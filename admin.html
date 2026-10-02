@@ -127,11 +127,14 @@
         <button data-tab="aba-imoveis" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
           <span>🏢 Gerenciar Imóveis</span>
         </button>
+        <button data-tab="aba-portais" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
+          <span>🌐 Multi-Portais (ZAP, OLX...)</span>
+        </button>
         <button data-tab="aba-leads" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
-          <span>🎯 CRM de Leads & Propostas</span>
+          <span>🎯 CRM de Leads & Matching</span>
         </button>
         <button data-tab="aba-config" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
-          <span>⚙️ Configurações White-Label</span>
+          <span>⚙️ Configurações & Remarketing</span>
         </button>
         <button data-tab="aba-backup" class="tab-admin-nav text-slate-600 hover:bg-slate-100 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-2">
           <span>💾 Backup & Reset</span>
@@ -239,6 +242,184 @@
               </tbody>
             </table>
           </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- ABA: INTEGRAÇÃO MULTI-PORTAIS (FEED XML ZAP, VIVAREAL, OLX...)        -->
+      <!-- ===================================================================== -->
+      <section id="aba-portais" class="painel-aba-conteudo hidden space-y-6">
+        
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
+            Padrão Nacional de Integração Imobiliária
+          </span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Publicação Automática em Mais de 60 Portais</h2>
+          <p class="text-xs text-slate-500">Cadastre seu imóvel uma única vez neste painel e distribua para os maiores portais imobiliários do Brasil sem copiar e colar.</p>
+        </div>
+
+        <!-- Box do Feed XML Oficial -->
+        <div class="bg-gradient-to-r from-slate-900 to-blue-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span class="text-xs font-bold text-blue-400 uppercase tracking-widest block">URL Oficial do Feed XML (Padrão VivaReal / ZAP)</span>
+              <h3 class="text-lg font-black text-white mt-0.5">Link de Sincronização Automática com Portais</h3>
+            </div>
+            <span class="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full flex items-center gap-1.5 self-start sm:self-auto">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Feed XML Ativo & Atualizado
+            </span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-2">
+            <input 
+              type="text" 
+              id="input-url-feed-xml" 
+              readonly 
+              value="https://ricardorickbony-lgtm.github.io/imob-prime/feed-portais.xml" 
+              class="w-full bg-slate-800/90 border border-slate-700 text-slate-200 text-xs font-mono rounded-xl px-4 py-3 focus:outline-none select-all"
+            >
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button id="btn-copiar-feed-xml" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-3 rounded-xl transition shadow flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                <span>Copiar Link</span>
+              </button>
+              <button id="btn-baixar-feed-xml" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-3 rounded-xl transition border border-white/20 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Baixar XML</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-slate-400">
+            💡 <strong>Instrução para a Imobiliária:</strong> Copie este link e envie para o seu gerente de contas do ZAP, VivaReal, OLX ou Imovelweb. O robô deles acessará este link a cada hora e manterá seu estoque sincronizado automaticamente.
+          </p>
+        </div>
+
+        <!-- Grade de Portais Conectados -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 font-black flex items-center justify-center text-sm border border-blue-100">
+                ZAP
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">ZAP Imóveis</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado via Feed
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 font-black flex items-center justify-center text-xs border border-emerald-100">
+                VIVA
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">VivaReal</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado via Feed
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 font-black flex items-center justify-center text-xs border border-purple-100">
+                OLX
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">OLX Imóveis</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado via Feed
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-700 font-black flex items-center justify-center text-xs border border-orange-100">
+                WEB
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">Imovelweb</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado via Feed
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-50 text-red-700 font-black flex items-center justify-center text-xs border border-red-100">
+                CNM
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">Chaves na Mão</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado via Feed
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-yellow-50 text-yellow-800 font-black flex items-center justify-center text-xs border border-yellow-200">
+                ML
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">Mercado Livre</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado via Feed
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-900 text-white font-black flex items-center justify-center text-xs">
+                LFT
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">Loft</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado via Feed
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between portal-card-toggle">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 font-black flex items-center justify-center text-xs border border-indigo-100">
+                GLB
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">Properstar Global</h4>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Portal Internacional
+                </span>
+              </div>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded">
+          </div>
+
         </div>
 
       </section>
@@ -391,6 +572,32 @@
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Webhook de Leads (n8n / CRM / Zapier)</label>
               <input type="text" id="cfg-webhook" placeholder="Ex: https://n8n.seu-dominio.com/webhook/lead-imob" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800">
               <span class="text-[10px] text-slate-400 mt-1 block">Todo novo lead capturado no site será enviado automaticamente em formato JSON para esta URL.</span>
+            </div>
+
+            <!-- Rastreamento & Remarketing (Meta Pixel / Google Ads / LGPD) -->
+            <div class="border-t border-slate-200 pt-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">🎯 Remarketing & Tráfego Pago (LGPD Compliance)</h4>
+                  <p class="text-[11px] text-slate-500">Configure os códigos de rastreamento para criar campanhas de remarketing para quem visita os imóveis no site.</p>
+                </div>
+                <span class="text-[10px] font-bold bg-purple-50 text-purple-700 px-2.5 py-0.5 rounded-full border border-purple-200">
+                  Cookies Ativos
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Meta Pixel ID (Facebook & Instagram Ads)</label>
+                  <input type="text" id="cfg-pixel-meta" placeholder="Ex: 123456789012345" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono">
+                  <span class="text-[10px] text-slate-400 mt-0.5 block">Dispara eventos automáticos de PageView e Lead quando o cliente chama no WhatsApp.</span>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Google Ads Conversion ID (Tag Manager / AdWords)</label>
+                  <input type="text" id="cfg-google-ads" placeholder="Ex: AW-123456789" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-mono">
+                  <span class="text-[10px] text-slate-400 mt-0.5 block">Permite mensurar conversões das campanhas de pesquisa e rede de display do Google.</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -583,7 +790,12 @@
 
         <!-- Descrição -->
         <div>
-          <label class="block font-bold text-slate-700 uppercase mb-1">Descrição Comercial Completa</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-bold text-slate-700 uppercase">Descrição Comercial Completa</label>
+            <button type="button" id="btn-gerar-descricao-ia" class="bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold px-2.5 py-1 rounded-lg text-[10px] transition flex items-center gap-1 shadow-sm">
+              <span>✨ Gerar Descrição com IA</span>
+            </button>
+          </div>
           <textarea id="input-imob-descricao" rows="4" placeholder="Descreva os diferenciais, acabamento, vista e localização..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5"></textarea>
         </div>
 

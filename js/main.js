@@ -19,6 +19,8 @@ function initImobiliaria() {
   configurarEventosFiltros();
   configurarModal();
   configurarFormularioProprietario();
+  configurarBannerCookiesELGPD();
+  configurarModalPrivacidade();
 
   // Escuta atualizações de estoque e configurações emitidas pelo painel SaaS
   window.addEventListener('imob_dados_atualizados', () => {
@@ -629,3 +631,143 @@ function configurarFormularioProprietario() {
 window.abrirModalImovel = abrirModalImovel;
 window.trocarFotoDestaqueModal = trocarFotoDestaqueModal;
 window.limparFiltros = limparFiltros;
+
+/**
+ * 11. Banner de Cookies LGPD & Remarketing (Meta Pixel / Google Ads)
+ */
+function configurarBannerCookiesELGPD() {
+  const consentimento = localStorage.getItem('imob_cookies_consent');
+
+  let banner = document.getElementById('cookie-consent-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'cookie-consent-banner';
+    banner.className = 'cookie-consent-banner';
+    banner.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0 text-base">
+          🍪
+        </div>
+        <div class="text-xs text-slate-300 leading-relaxed">
+          <strong class="text-white block font-bold text-xs mb-0.5">Privacidade e Cookies (LGPD)</strong>
+          Utilizamos cookies e tecnologias de remarketing (Meta Pixel e Google Ads) para personalizar ofertas e proporcionar uma melhor experiência imobiliária.
+        </div>
+      </div>
+      <div class="flex items-center gap-2 pt-1 border-t border-slate-700/60 justify-end">
+        <button onclick="abrirModalPrivacidade()" class="text-[11px] text-slate-400 hover:text-blue-400 font-semibold underline mr-auto transition">
+          Políticas de Privacidade
+        </button>
+        <button id="btn-aceitar-cookies" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow">
+          Aceitar e Continuar
+        </button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+  }
+
+  if (consentimento !== 'true') {
+    setTimeout(() => {
+      banner.classList.add('show');
+    }, 1000);
+  } else {
+    injetarScriptsRemarketing();
+  }
+
+  document.getElementById('btn-aceitar-cookies')?.addEventListener('click', () => {
+    localStorage.setItem('imob_cookies_consent', 'true');
+    banner.classList.remove('show');
+    injetarScriptsRemarketing();
+  });
+}
+
+function injetarScriptsRemarketing() {
+  const config = DB.getConfig();
+
+  // Injeção do Meta Pixel (Facebook / Instagram)
+  if (config.pixelMetaId && !window._fbqInjetado) {
+    window._fbqInjetado = true;
+    console.info('Pixel Meta ativado:', config.pixelMetaId);
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    try {
+      fbq('init', config.pixelMetaId);
+      fbq('track', 'PageView');
+    } catch(e) {}
+  }
+
+  // Injeção do Google Ads / Tag Manager
+  if (config.googleAdsId && !window._gtagInjetado) {
+    window._gtagInjetado = true;
+    console.info('Google Ads Tag ativado:', config.googleAdsId);
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${config.googleAdsId}`;
+    document.head.appendChild(script);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', config.googleAdsId);
+  }
+}
+
+function dispararEventoRemarketing(nomeEvento, parametros = {}) {
+  try {
+    if (window.fbq) fbq('track', nomeEvento, parametros);
+    if (window.gtag) gtag('event', nomeEvento, parametros);
+  } catch (err) {}
+}
+
+/**
+ * 12. Modal de Política de Privacidade e Proteção de Dados (LGPD)
+ */
+function configurarModalPrivacidade() {
+  let modal = document.getElementById('modal-privacidade');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-privacidade';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-content relative !max-w-2xl p-6 sm:p-8 space-y-4">
+        <button onclick="document.getElementById('modal-privacidade').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">✕</button>
+        <div class="border-b border-slate-100 pb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded">LGPD & Compliance</span>
+          <h3 class="text-xl font-bold text-slate-900 mt-1">Política de Privacidade e Proteção de Dados</h3>
+          <p class="text-xs text-slate-500">Última atualização: Outubro de 2026</p>
+        </div>
+        <div class="text-xs text-slate-600 space-y-3 max-h-[60vh] overflow-y-auto pr-2 leading-relaxed">
+          <p>Esta Política de Privacidade descreve como a <strong>Prime Imóveis & Conceito</strong> coleta, utiliza, armazena e protege os dados pessoais dos usuários de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - LGPD).</p>
+          <h4 class="font-bold text-slate-800 text-sm">1. Coleta e Finalidade dos Dados</h4>
+          <p>Coletamos dados fornecidos voluntariamente por você ao enviar mensagens, propostas, simulações de financiamento ou agendamentos de visita pelo site ou WhatsApp oficial (como Nome completo, WhatsApp/Telefone e perfil do imóvel de interesse). Esses dados são utilizados exclusivamente para o atendimento imobiliário solicitado.</p>
+          <h4 class="font-bold text-slate-800 text-sm">2. Cookies e Tecnologias de Remarketing</h4>
+          <p>Utilizamos cookies essenciais para navegação e tags de remarketing (Meta Pixel e Google Ads) para analisar métricas de acesso e exibir imóveis e oportunidades relevantes para o seu perfil em plataformas digitais parceiras.</p>
+          <h4 class="font-bold text-slate-800 text-sm">3. Segurança e Sigilo dos Dados</h4>
+          <p>Adotamos medidas rígidas de segurança digital para proteger seus dados contra acessos não autorizados. Seus dados cadastrais nunca serão vendidos ou compartilhados com terceiros fora do escopo da negociação imobiliária solicitada.</p>
+          <h4 class="font-bold text-slate-800 text-sm">4. Direitos do Titular (LGPD)</h4>
+          <p>Conforme previsto no Artigo 18 da LGPD, você pode a qualquer momento solicitar a confirmação, acesso, correção ou eliminação dos seus dados pessoais entrando em contato com nosso Encarregado de Proteção de Dados (DPO) pelo e-mail ou WhatsApp oficial da imobiliária.</p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex justify-end">
+          <button onclick="document.getElementById('modal-privacidade').classList.remove('active')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition">
+            Entendido e Concordo
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+}
+
+function abrirModalPrivacidade() {
+  configurarModalPrivacidade();
+  document.getElementById('modal-privacidade')?.classList.add('active');
+}
+
+window.abrirModalPrivacidade = abrirModalPrivacidade;
+window.dispararEventoRemarketing = dispararEventoRemarketing;
+

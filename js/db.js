@@ -1,5 +1,6 @@
 /**
- * db.js - Camada de Dados, Catálogo de Imóveis, CRM de Leads e Configurações
+ * db.js - Camada de Dados, Catálogo de Imóveis, CRM de Leads,
+ * IA Imobiliária, Integração Multi-Portais e Configurações de Remarketing
  * Imobiliária Prime - Padrão Severino & Ricardo (Impacto Digital)
  */
 
@@ -8,7 +9,7 @@ const STORAGE_CONFIG_KEY = 'imob_prime_config_v1';
 const STORAGE_LEADS_KEY = 'imob_prime_leads_v1';
 const STORAGE_SENHA_KEY = 'imob_prime_senha_admin';
 
-// Configurações Padrão de Identidade Visual da Imobiliária (White-Label)
+// Configurações Padrão de Identidade Visual, Remarketing e Portais (White-Label)
 const CONFIG_IMOB_PADRAO = {
   nome: 'Prime Imóveis & Conceito',
   slogan: 'Curadoria exclusiva de imóveis de alto padrão, lançamentos e oportunidades selecionadas',
@@ -31,7 +32,24 @@ const CONFIG_IMOB_PADRAO = {
   facebook: 'https://facebook.com',
   youtube: 'https://youtube.com',
   tiktok: 'https://tiktok.com',
-  webhookLeads: ''
+  webhookLeads: '',
+
+  // Remarketing e Rastreamento de Tráfego Pago
+  pixelMetaId: '123456789012345',
+  googleAdsId: 'AW-123456789',
+  googleAnalyticsId: 'G-ABCD1234EF',
+
+  // Configuração Multi-Portais Ativos
+  portaisAtivos: {
+    zap: true,
+    vivareal: true,
+    olx: true,
+    imovelweb: true,
+    chavesnamao: true,
+    mercadolivre: true,
+    loft: true,
+    properstar: true
+  }
 };
 
 // Catálogo Realista de Imóveis de Alta Performance
@@ -76,7 +94,7 @@ const IMOVEIS_INICIAIS = [
       '5 Vagas Determinadas + Depósito Privativo',
       'Gerador de Energia para Áreas Comuns e Elevador'
     ],
-    videoTour: '',
+    portaisSincronizados: ['zap', 'vivareal', 'olx', 'imovelweb', 'chavesnamao', 'mercadolivre'],
     corretorResponsavel: {
       nome: 'Eduardo Martins',
       creci: '184.920-F',
@@ -122,7 +140,7 @@ const IMOVEIS_INICIAIS = [
       'Quadra Poliesportiva e Salão de Festas Climatizado',
       'Pet Place e Brinquedoteca'
     ],
-    videoTour: '',
+    portaisSincronizados: ['zap', 'vivareal', 'olx', 'imovelweb', 'chavesnamao'],
     corretorResponsavel: {
       nome: 'Mariana Silveira',
       creci: '201.440-F',
@@ -168,7 +186,7 @@ const IMOVEIS_INICIAIS = [
       'Garagem Coberta para 6 Veículos Grandes',
       'Poço Artesiano com Tratamento de Água Próprio'
     ],
-    videoTour: '',
+    portaisSincronizados: ['zap', 'vivareal', 'imovelweb', 'properstar', 'loft'],
     corretorResponsavel: {
       nome: 'Eduardo Martins',
       creci: '184.920-F',
@@ -213,7 +231,7 @@ const IMOVEIS_INICIAIS = [
       'Fechadura Eletrônica com Senha e Cartão',
       'Serviço de Concierge e Limpeza Pay-Per-Use'
     ],
-    videoTour: '',
+    portaisSincronizados: ['olx', 'zap', 'vivareal', 'chavesnamao'],
     corretorResponsavel: {
       nome: 'Mariana Silveira',
       creci: '201.440-F',
@@ -258,7 +276,7 @@ const IMOVEIS_INICIAIS = [
       'Previsão para Ar Condicionado em Todos os Quartos',
       'Condições de Entrada Parcelada em até 36x'
     ],
-    videoTour: '',
+    portaisSincronizados: ['zap', 'vivareal', 'olx', 'imovelweb', 'mercadolivre'],
     corretorResponsavel: {
       nome: 'Eduardo Martins',
       creci: '184.920-F',
@@ -302,7 +320,7 @@ const IMOVEIS_INICIAIS = [
       'Cerca Elétrica e Sistema de Câmeras Instalado',
       'Acabamento em Porcelanato 90x90 e Granito São Gabriel'
     ],
-    videoTour: '',
+    portaisSincronizados: ['zap', 'vivareal', 'olx', 'chavesnamao'],
     corretorResponsavel: {
       nome: 'Mariana Silveira',
       creci: '201.440-F',
@@ -344,7 +362,7 @@ const IMOVEIS_INICIAIS = [
       'Gerador Total para 100% da Carga do Prédio',
       'Bicicletário com Vestiários Completos'
     ],
-    videoTour: '',
+    portaisSincronizados: ['imovelweb', 'zap', 'vivareal'],
     corretorResponsavel: {
       nome: 'Eduardo Martins',
       creci: '184.920-F',
@@ -388,7 +406,7 @@ const IMOVEIS_INICIAIS = [
       'Guarita Blindada Nível III-A',
       'Depósito Fechado no Subsolo'
     ],
-    videoTour: '',
+    portaisSincronizados: ['zap', 'vivareal', 'imovelweb', 'olx', 'chavesnamao'],
     corretorResponsavel: {
       nome: 'Mariana Silveira',
       creci: '201.440-F',
@@ -397,7 +415,7 @@ const IMOVEIS_INICIAIS = [
   }
 ];
 
-// Leads Iniciais para o SaaS (Demonstração Pronta para Prospectar Clientes)
+// Leads Iniciais para o SaaS com Temperatura (Lead Scoring)
 const LEADS_INICIAIS = [
   {
     id: 'lead-1',
@@ -409,8 +427,10 @@ const LEADS_INICIAIS = [
     tipoInteresse: 'Visita Presencial',
     mensagem: 'Olá, tenho muito interesse em visitar a cobertura duplex no Bairro Jardim neste sábado pela manhã.',
     status: 'Visita Agendada',
+    temperatura: 'quente', // quente | morno | frio
     data: '02/10/2026 10:15',
-    valorProposta: 'R$ 3.700.000 (À Vista)'
+    valorProposta: 'R$ 3.700.000 (À Vista)',
+    preferencias: { tipo: 'cobertura', bairro: 'Bairro Jardim', precoMax: 4000000 }
   },
   {
     id: 'lead-2',
@@ -422,8 +442,10 @@ const LEADS_INICIAIS = [
     tipoInteresse: 'Simulação de Financiamento',
     mensagem: 'Gostei muito do apartamento no Campestre. Quero saber o valor da entrada mínima com financiamento Itaú.',
     status: 'Em Atendimento',
+    temperatura: 'quente',
     data: '02/10/2026 11:40',
-    valorProposta: 'Entrada R$ 300.000 + Financiamento'
+    valorProposta: 'Entrada R$ 300.000 + Financiamento',
+    preferencias: { tipo: 'apartamento', bairro: 'Campestre', precoMax: 1300000 }
   },
   {
     id: 'lead-3',
@@ -435,12 +457,14 @@ const LEADS_INICIAIS = [
     tipoInteresse: 'Book Digital / Lançamento',
     mensagem: 'Gostaria de receber o material completo e a tabela de investidor do Horizon Prime.',
     status: 'Novo',
+    temperatura: 'morno',
     data: '02/10/2026 12:20',
-    valorProposta: 'Investimento na Planta'
+    valorProposta: 'Investimento na Planta',
+    preferencias: { tipo: 'lancamento', bairro: 'Vila Gilda', precoMax: 800000 }
   }
 ];
 
-// Camada de Funções de Acesso aos Dados
+// Camada de Funções de Acesso aos Dados, Multi-Portais e IA Imobiliária
 const DB = {
   // Retorna os imóveis salvos ou carrega a base padrão
   getImoveis() {
@@ -477,6 +501,9 @@ const DB = {
   adicionarImovel(imovel) {
     const imoveis = this.getImoveis();
     if (!imovel.id) imovel.id = 'imob-' + Date.now();
+    if (!imovel.portaisSincronizados) {
+      imovel.portaisSincronizados = ['zap', 'vivareal', 'olx', 'imovelweb', 'chavesnamao'];
+    }
     imoveis.unshift(imovel);
     this.salvarImoveis(imoveis);
     return imovel;
@@ -521,7 +548,7 @@ const DB = {
     }
   },
 
-  // CRM de Leads
+  // CRM de Leads & Lead Scoring
   getLeads() {
     try {
       const data = localStorage.getItem(STORAGE_LEADS_KEY);
@@ -549,6 +576,10 @@ const DB = {
       lead.data = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     }
     if (!lead.status) lead.status = 'Novo';
+
+    // Lead Scoring com IA (Quente, Morno, Frio)
+    lead.temperatura = this.calcularLeadScore(lead);
+
     leads.unshift(lead);
     this.salvarLeads(leads);
 
@@ -563,6 +594,17 @@ const DB = {
     }
 
     return lead;
+  },
+
+  calcularLeadScore(lead) {
+    const texto = `${lead.tipoInteresse} ${lead.mensagem} ${lead.valorProposta}`.toLowerCase();
+    if (texto.includes('visita') || texto.includes('proposta') || texto.includes('à vista') || texto.includes('comprar')) {
+      return 'quente'; // 🔥 Lead de alta intenção de compra imediata
+    }
+    if (texto.includes('simulação') || texto.includes('financiamento') || texto.includes('avaliação')) {
+      return 'morno'; // ⚡ Lead qualificado em estágio de decisão
+    }
+    return 'frio'; // ❄️ Lead em estágio inicial de pesquisa
   },
 
   atualizarStatusLead(id, novoStatus) {
@@ -581,6 +623,153 @@ const DB = {
     leads = leads.filter(item => item.id !== id);
     this.salvarLeads(leads);
     return true;
+  },
+
+  // =========================================================================
+  // MÓDULO INTELIGÊNCIA ARTIFICIAL (IA IMOBILIÁRIA)
+  // =========================================================================
+
+  /**
+   * Gerador de Descrição Persuasiva com IA para Corretores
+   * Gera uma copy comercial completa destacando os pontos fortes do imóvel.
+   */
+  gerarDescricaoComIA(dados) {
+    const tipoFormatado = (dados.tipo || 'imóvel').toUpperCase();
+    const bairro = dados.bairro || 'região nobre';
+    const area = dados.areaUtil ? `${dados.areaUtil}m² de área privativa` : 'planta generosa';
+    const quartos = dados.quartos ? `${dados.quartos} dormitórios (${dados.suites || 1} suítes)` : 'ambientes amplos';
+    const vagas = dados.vagas ? `${dados.vagas} vagas de garagem` : 'vagas privativas';
+    const diferenciais = (dados.diferenciais && dados.diferenciais.length > 0) 
+      ? dados.diferenciais.slice(0, 4).join(', ') 
+      : 'acabamento de alto padrão, varanda gourmet e lazer completo';
+
+    const introducoes = [
+      `Apresentamos uma oportunidade verdadeiramente singular em ${bairro}. Este magnífico ${tipoFormatado} une sofisticação, conforto e localização privilegiada.`,
+      `Descubra o privilégio de viver com requinte e bem-estar no coração de ${bairro}. Um ${tipoFormatado} projetado para atender aos mais altos padrões de exigência.`,
+      `Para quem valoriza espaço, elegância e privacidade: conheça este impressionante ${tipoFormatado} em ${bairro}, com vista deslumbrante e acabamento impecável.`
+    ];
+
+    const intro = introducoes[Math.floor(Math.random() * introducoes.length)];
+
+    return `${intro}
+
+Com ${area}, o imóvel oferece uma distribuição inteligente com ${quartos}, living integrado para múltiplos ambientes e ${vagas}.
+
+Destaques e Comodidades:
+• ${diferenciais}
+• Projeto com excelente iluminação e ventilação natural
+• Condomínio com infraestrutura de segurança e lazer diferenciado
+• Localização estratégica próxima aos melhores comércios, escolas e vias de acesso
+
+Agende sua visita exclusiva com nossos consultores especialistas e encante-se pessoalmente com cada detalhe deste imóvel.`;
+  },
+
+  /**
+   * Gerador de Post & Copy Pronta para WhatsApp e Redes Sociais
+   */
+  gerarCopyRedesSociais(imovel) {
+    const preco = imovel.finalidade === 'aluguel' 
+      ? `R$ ${imovel.precoAluguel.toLocaleString('pt-BR')}/mês` 
+      : `R$ ${imovel.preco.toLocaleString('pt-BR')}`;
+
+    return `✨ OPORTUNIDADE EXCLUSIVA | ${imovel.titulo}
+
+📍 ${imovel.bairro} - ${imovel.cidade}
+🔑 Código: ${imovel.codigo}
+
+📐 ${imovel.areaUtil}m² privativos
+🛏️ ${imovel.quartos} quartos (${imovel.suites} suítes)
+🚗 ${imovel.vagas} vagas de garagem
+💰 ${preco}
+
+${(imovel.tags || []).map(t => `#${t.replace(/\s+/g, '')}`).join(' ')}
+
+📲 Quer conhecer este imóvel por dentro? Me chame no WhatsApp agora para agendar sua visita exclusiva!`;
+  },
+
+  /**
+   * Algoritmo de Matching Inteligente (Lead x Imóvel)
+   * Cruza as preferências do lead com o catálogo de imóveis disponíveis.
+   */
+  buscarMatchingImoveis(lead) {
+    const imoveis = this.getImoveis().filter(im => im.status === 'disponivel');
+    const termo = `${lead.imovelTitulo} ${lead.mensagem} ${lead.imovelCodigo}`.toLowerCase();
+
+    // Prioriza o imóvel que o lead consultou diretamente
+    const imovelDireto = imoveis.find(im => im.codigo.toLowerCase() === (lead.imovelCodigo || '').toLowerCase());
+
+    // Busca imóveis semelhantes (mesmo bairro ou mesma tipologia ou faixa de preço)
+    const semelhantes = imoveis.filter(im => {
+      if (imovelDireto && im.id === imovelDireto.id) return false;
+      if (imovelDireto && im.tipo === imovelDireto.tipo) return true;
+      if (imovelDireto && im.bairro === imovelDireto.bairro) return true;
+      return termo.includes(im.tipo.toLowerCase()) || termo.includes(im.bairro.toLowerCase());
+    }).slice(0, 3);
+
+    return {
+      imovelConsultado: imovelDireto || null,
+      sugestoesMatching: semelhantes
+    };
+  },
+
+  // =========================================================================
+  // MÓDULO MULTI-PORTAIS: FEED XML OFICIAL (ZAP, VIVAREAL, OLX, IMOVELWEB...)
+  // =========================================================================
+
+  /**
+   * Gera o Feed XML oficial no padrão Carga XML Zap/VivaReal
+   * Aceito universalmente por 60+ portais imobiliários do Brasil.
+   */
+  gerarFeedXmlPortais() {
+    const config = this.getConfig();
+    const imoveis = this.getImoveis().filter(im => im.status === 'disponivel');
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<Carga xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n`;
+    xml += `  <Imoveis>\n`;
+
+    imoveis.forEach(im => {
+      const precoVenda = im.preco || 0;
+      const precoLocacao = im.precoAluguel || 0;
+      const tipoTransacao = im.finalidade === 'aluguel' ? 'Locação' : (im.finalidade === 'venda' ? 'Venda' : 'Venda');
+
+      xml += `    <Imovel>\n`;
+      xml += `      <CodigoImovel>${im.codigo}</CodigoImovel>\n`;
+      xml += `      <TipoImovel>${im.tipo.charAt(0).toUpperCase() + im.tipo.slice(1)}</TipoImovel>\n`;
+      xml += `      <SubTipoImovel>Padrão</SubTipoImovel>\n`;
+      xml += `      <CategoriaImovel>Residencial</CategoriaImovel>\n`;
+      xml += `      <Titulo><![CDATA[${im.titulo}]]></Titulo>\n`;
+      xml += `      <Observacao><![CDATA[${im.descricao}]]></Observacao>\n`;
+      xml += `      <Transacao>${tipoTransacao}</Transacao>\n`;
+      if (precoVenda > 0) xml += `      <PrecoVenda>${precoVenda}</PrecoVenda>\n`;
+      if (precoLocacao > 0) xml += `      <PrecoLocacao>${precoLocacao}</PrecoLocacao>\n`;
+      xml += `      <PrecoCondominio>${im.condominio || 0}</PrecoCondominio>\n`;
+      xml += `      <PrecoIptu>${im.iptu || 0}</PrecoIptu>\n`;
+      xml += `      <AreaUtil>${im.areaUtil || 0}</AreaUtil>\n`;
+      xml += `      <AreaTotal>${im.areaTotal || im.areaUtil || 0}</AreaTotal>\n`;
+      xml += `      <QtdQuartos>${im.quartos || 0}</QtdQuartos>\n`;
+      xml += `      <QtdSuites>${im.suites || 0}</QtdSuites>\n`;
+      xml += `      <QtdBanheiros>${im.banheiros || 0}</QtdBanheiros>\n`;
+      xml += `      <QtdVagas>${im.vagas || 0}</QtdVagas>\n`;
+      xml += `      <Cidade>${im.cidade || 'Santo André - SP'}</Cidade>\n`;
+      xml += `      <Bairro>${im.bairro || ''}</Bairro>\n`;
+      xml += `      <Endereco>${im.endereco || ''}</Endereco>\n`;
+      xml += `      <Fotos>\n`;
+      (im.fotos || [im.fotoPrincipal]).forEach((f, idx) => {
+        xml += `        <Foto>\n`;
+        xml += `          <NomeArquivo>${im.codigo}_foto_${idx + 1}.jpg</NomeArquivo>\n`;
+        xml += `          <URLArquivo>${f}</URLArquivo>\n`;
+        xml += `          <Principal>${idx === 0 ? '1' : '0'}</Principal>\n`;
+        xml += `        </Foto>\n`;
+      });
+      xml += `      </Fotos>\n`;
+      xml += `    </Imovel>\n`;
+    });
+
+    xml += `  </Imoveis>\n`;
+    xml += `</Carga>`;
+
+    return xml;
   },
 
   // Autenticação simples do SaaS
