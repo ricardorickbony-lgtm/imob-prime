@@ -505,7 +505,7 @@
                 </div>
                 <span id="badge-count-novo" class="text-[11px] font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">0</span>
               </div>
-              <div id="coluna-leads-novo" class="space-y-2 flex-grow min-h-[160px]"></div>
+              <div id="coluna-leads-novo" ondragover="allowDropKanban(event)" ondrop="dropKanbanLead(event, 'novo')" class="space-y-2 flex-grow min-h-[160px] p-1 rounded-xl transition"></div>
             </div>
 
             <!-- Coluna 2: Em Contato -->
@@ -517,7 +517,7 @@
                 </div>
                 <span id="badge-count-contato" class="text-[11px] font-black bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">0</span>
               </div>
-              <div id="coluna-leads-contato" class="space-y-2 flex-grow min-h-[160px]"></div>
+              <div id="coluna-leads-contato" ondragover="allowDropKanban(event)" ondrop="dropKanbanLead(event, 'contato')" class="space-y-2 flex-grow min-h-[160px] p-1 rounded-xl transition"></div>
             </div>
 
             <!-- Coluna 3: Visita Agendada -->
@@ -529,7 +529,7 @@
                 </div>
                 <span id="badge-count-visita" class="text-[11px] font-black bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">0</span>
               </div>
-              <div id="coluna-leads-visita" class="space-y-2 flex-grow min-h-[160px]"></div>
+              <div id="coluna-leads-visita" ondragover="allowDropKanban(event)" ondrop="dropKanbanLead(event, 'visita')" class="space-y-2 flex-grow min-h-[160px] p-1 rounded-xl transition"></div>
             </div>
 
             <!-- Coluna 4: Proposta / Negociação -->
@@ -541,7 +541,7 @@
                 </div>
                 <span id="badge-count-proposta" class="text-[11px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">0</span>
               </div>
-              <div id="coluna-leads-proposta" class="space-y-2 flex-grow min-h-[160px]"></div>
+              <div id="coluna-leads-proposta" ondragover="allowDropKanban(event)" ondrop="dropKanbanLead(event, 'proposta')" class="space-y-2 flex-grow min-h-[160px] p-1 rounded-xl transition"></div>
             </div>
 
             <!-- Coluna 5: Fechado / Ganho -->
@@ -553,7 +553,7 @@
                 </div>
                 <span id="badge-count-fechado" class="text-[11px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">0</span>
               </div>
-              <div id="coluna-leads-fechado" class="space-y-2 flex-grow min-h-[160px]"></div>
+              <div id="coluna-leads-fechado" ondragover="allowDropKanban(event)" ondrop="dropKanbanLead(event, 'fechado')" class="space-y-2 flex-grow min-h-[160px] p-1 rounded-xl transition"></div>
             </div>
 
           </div>
@@ -1094,6 +1094,7 @@
             </label>
           </div>
           <textarea id="input-imob-fotos" rows="3" placeholder="Cole links de fotos (1 por linha) ou clique em 'Carregar do Computador' para adicionar quantas fotos quiser (10, 20, 30+ fotos)..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-mono text-[11px]"></textarea>
+          <div id="status-upload-fotos" class="hidden text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 mt-1.5 flex items-center gap-2"></div>
           <span class="text-[10px] text-slate-400 block mt-1">📸 <strong>Sem limite de fotos:</strong> Você pode adicionar quantas fotos forem necessárias por imóvel. Todas são exibidas na galeria do site e enviadas nos feeds XML dos portais.</span>
         </div>
 
@@ -1472,6 +1473,18 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL DE MATCHING INTELIGENTE & RADAR DE OPORTUNIDADES                    -->
+  <!-- ========================================================================= -->
+  <div id="modal-matching" class="modal-overlay">
+    <div class="modal-content relative !max-w-2xl p-6 sm:p-8 space-y-4">
+      <button onclick="document.getElementById('modal-matching').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition" title="Fechar">✕</button>
+      <div id="modal-matching-conteudo">
+        <!-- Inserido dinamicamente via JS -->
+      </div>
     </div>
   </div>
 

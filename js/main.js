@@ -259,13 +259,13 @@ function renderizarGridImoveis() {
 
     if (im.finalidade === 'aluguel') {
       badgeFinalidade = '<span class="property-badge-finalidade badge-aluguel">Aluguel</span>';
-      precoFormatado = `R$ ${im.precoAluguel.toLocaleString('pt-BR')} <span class="text-xs font-normal text-slate-500">/mês</span>`;
+      precoFormatado = `R$ ${(im.precoAluguel || 0).toLocaleString('pt-BR')} <span class="text-xs font-normal text-slate-500">/mês</span>`;
     } else if (im.finalidade === 'lancamento') {
       badgeFinalidade = '<span class="property-badge-finalidade badge-lancamento">Lançamento</span>';
-      precoFormatado = `<span class="text-xs text-slate-500 font-normal block">A partir de</span> R$ ${im.preco.toLocaleString('pt-BR')}`;
+      precoFormatado = `<span class="text-xs text-slate-500 font-normal block">A partir de</span> R$ ${(im.preco || 0).toLocaleString('pt-BR')}`;
     } else {
       badgeFinalidade = '<span class="property-badge-finalidade badge-venda">Venda</span>';
-      precoFormatado = `R$ ${im.preco.toLocaleString('pt-BR')}`;
+      precoFormatado = `R$ ${(im.preco || 0).toLocaleString('pt-BR')}`;
     }
 
     const tagsHtml = (im.tags || []).slice(0, 2).map(tag => `
@@ -332,7 +332,7 @@ function renderizarGridImoveis() {
               <span class="text-lg font-black text-slate-900 leading-none">
                 ${precoFormatado}
               </span>
-              ${im.condominio > 0 ? `<span class="block text-[10px] text-slate-400 mt-0.5">Cond. R$ ${im.condominio.toLocaleString('pt-BR')}</span>` : ''}
+              ${(im.condominio || 0) > 0 ? `<span class="block text-[10px] text-slate-400 mt-0.5">Cond. R$ ${(im.condominio || 0).toLocaleString('pt-BR')}</span>` : ''}
             </div>
 
             <div class="flex items-center gap-1.5">
@@ -452,16 +452,16 @@ function abrirModalImovel(id) {
   // Preço
   const precoEl = document.getElementById('modal-imovel-preco');
   if (imovel.finalidade === 'aluguel') {
-    precoEl.innerHTML = `R$ ${imovel.precoAluguel.toLocaleString('pt-BR')} <span class="text-sm font-normal text-slate-500">/mês</span>`;
+    precoEl.innerHTML = `R$ ${(imovel.precoAluguel || 0).toLocaleString('pt-BR')} <span class="text-sm font-normal text-slate-500">/mês</span>`;
   } else {
-    precoEl.innerHTML = `R$ ${imovel.preco.toLocaleString('pt-BR')}`;
+    precoEl.innerHTML = `R$ ${(imovel.preco || 0).toLocaleString('pt-BR')}`;
   }
 
   // Custos extras
   const condEl = document.getElementById('modal-imovel-condominio');
-  if (condEl) condEl.textContent = imovel.condominio > 0 ? `R$ ${imovel.condominio.toLocaleString('pt-BR')}/mês` : 'Isento / Não informado';
+  if (condEl) condEl.textContent = (imovel.condominio || 0) > 0 ? `R$ ${(imovel.condominio || 0).toLocaleString('pt-BR')}/mês` : 'Isento / Não informado';
   const iptuEl = document.getElementById('modal-imovel-iptu');
-  if (iptuEl) iptuEl.textContent = imovel.iptu > 0 ? `R$ ${imovel.iptu.toLocaleString('pt-BR')}/mês` : 'Isento';
+  if (iptuEl) iptuEl.textContent = (imovel.iptu || 0) > 0 ? `R$ ${(imovel.iptu || 0).toLocaleString('pt-BR')}/mês` : 'Isento';
 
   // Métricas
   document.getElementById('modal-area-util').textContent = `${imovel.areaUtil} m²`;

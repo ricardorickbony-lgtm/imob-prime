@@ -721,7 +721,7 @@ const DB = {
       const data = localStorage.getItem(STORAGE_IMOVEIS_KEY);
       if (data) {
         const parsed = JSON.parse(data);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.warn('Erro ao carregar do localStorage:', e);
@@ -736,6 +736,9 @@ const DB = {
       window.dispatchEvent(new CustomEvent('imob_dados_atualizados', { detail: imoveis }));
     } catch (e) {
       console.error('Erro ao salvar no localStorage:', e);
+      if (e.name === 'QuotaExceededError' || e.code === 22) {
+        alert('⚠️ Limite de armazenamento local atingido! As imagens são muito pesadas. As fotos foram compactadas para evitar perda de dados.');
+      }
     }
   },
 
@@ -980,12 +983,14 @@ const DB = {
         const config = this.getConfig();
         const textoWa = `Olá ${lead.nome}! Notei seu interesse em imóveis no perfil que você busca. Selecionei esta oportunidade exclusiva no nosso acervo que tem ${percentual}% de compatibilidade com o seu perfil:\n\n🏡 *${im.codigo} - ${im.titulo}*\n📍 Localização: ${im.bairro}, ${im.cidade}\n💰 Valor: R$ ${(im.preco || im.precoAluguel).toLocaleString('pt-BR')}\n📐 Área: ${im.areaUtil}m² • ${im.quartos} quartos • ${im.vagas} vagas\n\nPodemos agendar uma visita presencial hoje?`;
         
+        const telDestino = (lead.whatsapp || lead.telefone || '').replace(/\D/g, '') || config.whatsapp;
         matches.push({
           imovel: im,
           score: percentual,
-          linkWhatsApp: `https://wa.me/${(lead.telefone || '').replace(/\D/g, '') || config.whatsapp}?text=${encodeURIComponent(textoWa)}`
+          linkWhatsApp: `https://wa.me/${telDestino}?text=${encodeURIComponent(textoWa)}`
         });
       }
+
     });
 
     matches.sort((a, b) => b.score - a.score);
@@ -1440,8 +1445,8 @@ ${(imovel.tags || []).map(t => `#${t.replace(/\s+/g, '')}`).join(' ')}
 
   // Autenticação simples do SaaS
   validarSenhaAdmin(senha) {
-    const senhaSalva = localStorage.getItem(STORAGE_SENHA_KEY) || 'admin123';
-    return senha === senhaSalva;
+    const senhaSalva = (localStorage.getItem(STORAGE_SENHA_KEY) || '').trim() || 'admin123';
+    return (senha || '').trim() === senhaSalva;
   },
 
   alterarSenhaAdmin(novaSenha) {

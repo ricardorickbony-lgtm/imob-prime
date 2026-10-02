@@ -11,6 +11,65 @@ document.addEventListener('DOMContentLoaded', () => {
 let sessaoAutenticada = false;
 let imovelEmEdicaoId = null;
 
+/**
+ * Utilitário: Sanitiza strings ou números monetários (trata '1.500.000', '2500,50', 'R$ 3.000')
+ */
+function sanitizarNumero(valor) {
+  if (typeof valor === 'number') return isNaN(valor) ? 0 : valor;
+  if (!valor) return 0;
+  let str = String(valor).replace(/[R$\s]/g, '');
+  if (str.includes(',') && str.includes('.')) {
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else if (str.includes(',')) {
+    str = str.replace(',', '.');
+  }
+  const num = parseFloat(str);
+  return isNaN(num) ? 0 : num;
+}
+
+/**
+ * Utilitário: Comprime e redimensiona fotos via HTML5 Canvas (Anti-travamento de Storage e Cota)
+ */
+function comprimirImagem(file, maxWidth = 1280, maxHeight = 960, qualidade = 0.8) {
+  return new Promise((resolve) => {
+    if (!file || !file.type.startsWith('image/')) {
+      resolve(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width / height > maxWidth / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', qualidade);
+        resolve(dataUrl);
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
 function initAdminSaaS() {
   verificarSessao();
   configurarEventosLogin();
@@ -24,6 +83,7 @@ function initAdminSaaS() {
   configurarGestaoLocacao();
   configurarVistoriasDigitais();
   configurarSofiaIA();
+  configurarModaisGlobais();
 }
 
 /**
@@ -175,7 +235,7 @@ function carregarMetricasDashboard() {
               <button onclick="abrirModalMatching('${l.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1.5 rounded-lg transition" title="Ver imóveis que combinam com este cliente">
                 🎯 Matching
               </button>
-              <a href="https://wa.me/${l.whatsapp.replace(/\D/g, '')}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm">
+              <a href="https://wa.me/${(l.whatsapp || l.telefone || '').replace(/\D/g, '')}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm">
                 <span>WhatsApp</span>
               </a>
             </div>
@@ -214,8 +274,8 @@ function renderizarTabelaImoveis() {
 
   container.innerHTML = filtrados.map(im => {
     let precoExibicao = im.finalidade === 'aluguel' 
-      ? `R$ ${im.precoAluguel.toLocaleString('pt-BR')}/mês` 
-      : `R$ ${im.preco.toLocaleString('pt-BR')}`;
+      ? `R$ ${(im.precoAluguel || 0).toLocaleString('pt-BR')}/mês` 
+      : `R$ ${(im.preco || 0).toLocaleString('pt-BR')}`;
 
     let statusBadgeClass = 'bg-emerald-100 text-emerald-800';
     if (im.status === 'reservado') statusBadgeClass = 'bg-amber-100 text-amber-800';
@@ -303,19 +363,24 @@ function configurarFormularioImovel() {
     modal.classList.remove('active');
   });
 
-  // Upload direto de fotos do computador/celular (sem limite de quantidade)
+  // Upload direto de fotos do computador/celular (com compressão inteligente anti-travamento)
   const uploadInput = document.getElementById('input-upload-fotos-arquivo');
-  uploadInput?.addEventListener('change', (e) => {
+  uploadInput?.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
     if (!files || files.length === 0) return;
 
     const textareaFotos = document.getElementById('input-imob-fotos');
     const inputFotoPrincipal = document.getElementById('input-imob-foto-principal');
+    const statusUpload = document.getElementById('status-upload-fotos');
 
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target.result;
+    if (statusUpload) {
+      statusUpload.textContent = `⏳ Otimizando ${files.length} foto(s) para máxima velocidade...`;
+      statusUpload.classList.remove('hidden');
+    }
+
+    for (const file of files) {
+      const dataUrl = await comprimirImagem(file, 1280, 960, 0.8);
+      if (dataUrl) {
         if (!inputFotoPrincipal.value) {
           inputFotoPrincipal.value = dataUrl;
         }
@@ -324,9 +389,14 @@ function configurarFormularioImovel() {
         } else {
           textareaFotos.value = dataUrl;
         }
-      };
-      reader.readAsDataURL(file);
-    });
+      }
+    }
+
+    if (statusUpload) {
+      statusUpload.textContent = `✓ ${files.length} foto(s) otimizada(s) e anexada(s) com sucesso!`;
+      setTimeout(() => statusUpload.classList.add('hidden'), 3500);
+    }
+    uploadInput.value = '';
   });
 
   document.getElementById('busca-admin-imoveis')?.addEventListener('input', renderizarTabelaImoveis);
@@ -356,16 +426,16 @@ function configurarFormularioImovel() {
       bairro: document.getElementById('input-imob-bairro').value.trim(),
       cidade: document.getElementById('input-imob-cidade').value.trim(),
       endereco: document.getElementById('input-imob-endereco').value.trim(),
-      preco: parseFloat(document.getElementById('input-imob-preco').value) || 0,
-      precoAluguel: parseFloat(document.getElementById('input-imob-preco-aluguel').value) || 0,
-      condominio: parseFloat(document.getElementById('input-imob-condominio').value) || 0,
-      iptu: parseFloat(document.getElementById('input-imob-iptu').value) || 0,
-      areaUtil: parseInt(document.getElementById('input-imob-area-util').value) || 0,
-      areaTotal: parseInt(document.getElementById('input-imob-area-total').value) || 0,
-      quartos: parseInt(document.getElementById('input-imob-quartos').value) || 0,
-      suites: parseInt(document.getElementById('input-imob-suites').value) || 0,
-      banheiros: parseInt(document.getElementById('input-imob-banheiros').value) || 0,
-      vagas: parseInt(document.getElementById('input-imob-vagas').value) || 0,
+      preco: sanitizarNumero(document.getElementById('input-imob-preco').value),
+      precoAluguel: sanitizarNumero(document.getElementById('input-imob-preco-aluguel').value),
+      condominio: sanitizarNumero(document.getElementById('input-imob-condominio').value),
+      iptu: sanitizarNumero(document.getElementById('input-imob-iptu').value),
+      areaUtil: parseInt(sanitizarNumero(document.getElementById('input-imob-area-util').value)) || 0,
+      areaTotal: parseInt(sanitizarNumero(document.getElementById('input-imob-area-total').value)) || 0,
+      quartos: parseInt(sanitizarNumero(document.getElementById('input-imob-quartos').value)) || 0,
+      suites: parseInt(sanitizarNumero(document.getElementById('input-imob-suites').value)) || 0,
+      banheiros: parseInt(sanitizarNumero(document.getElementById('input-imob-banheiros').value)) || 0,
+      vagas: parseInt(sanitizarNumero(document.getElementById('input-imob-vagas').value)) || 0,
       destaque: document.getElementById('input-imob-destaque').checked,
       status: document.getElementById('input-imob-status').value,
       fotoPrincipal: fotoPrincipal,
@@ -626,7 +696,7 @@ function renderizarPipelineKanban() {
       ` : '';
 
       return `
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm space-y-2 hover:shadow-md transition">
+        <div draggable="true" ondragstart="dragKanbanLead(event, '${l.id}')" class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm space-y-2 hover:shadow-md transition cursor-grab active:cursor-grabbing">
           <div class="flex items-start justify-between gap-2">
             <div>
               <h4 class="font-black text-slate-900 text-xs leading-tight">${l.nome}</h4>
@@ -663,6 +733,25 @@ function renderizarPipelineKanban() {
   });
 }
 
+function dragKanbanLead(event, leadId) {
+  event.dataTransfer.setData('text/plain', leadId);
+}
+
+function allowDropKanban(event) {
+  event.preventDefault();
+}
+
+function dropKanbanLead(event, novaEtapa) {
+  event.preventDefault();
+  const leadId = event.dataTransfer.getData('text/plain');
+  if (leadId) {
+    DB.moverEtapaLead(leadId, novaEtapa);
+    renderizarPipelineKanban();
+    renderizarTabelaLeads();
+    carregarMetricasDashboard();
+  }
+}
+
 /**
  * 8. Modal de Radar de Imóveis & Smart Match (Inspirado no Imoview Universal Software)
  */
@@ -672,12 +761,8 @@ function abrirModalMatching(leadId) {
 
   const matches = DB.buscarMatchesRadarParaLead ? DB.buscarMatchesRadarParaLead(lead) : [];
   let modal = document.getElementById('modal-matching');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'modal-matching';
-    modal.className = 'modal-overlay';
-    document.body.appendChild(modal);
-  }
+  let conteudo = document.getElementById('modal-matching-conteudo');
+  if (!modal) return;
 
   const matchesHtml = (matches.length > 0) ? matches.map(m => `
     <div class="p-3 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-indigo-400 hover:shadow-sm transition">
@@ -690,7 +775,7 @@ function abrirModalMatching(leadId) {
           </div>
           <h5 class="font-bold text-slate-900 text-xs mt-0.5">${m.imovel.titulo}</h5>
           <div class="text-[11px] text-slate-500">${m.imovel.bairro}, ${m.imovel.cidade || 'Santo André'} • ${m.imovel.areaUtil}m² • ${m.imovel.quartos} qtos</div>
-          <span class="text-xs text-slate-900 font-black">R$ ${(m.imovel.preco || m.imovel.precoAluguel).toLocaleString('pt-BR')}</span>
+          <span class="text-xs text-slate-900 font-black">R$ ${(m.imovel.preco || m.imovel.precoAluguel || 0).toLocaleString('pt-BR')}</span>
         </div>
       </div>
       <a href="${m.linkWhatsApp}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap">
@@ -700,9 +785,8 @@ function abrirModalMatching(leadId) {
     </div>
   `).join('') : '<p class="text-xs text-slate-400 py-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">Nenhum imóvel disponível no acervo com compatibilidade para este perfil no momento.</p>';
 
-  modal.innerHTML = `
-    <div class="modal-content relative !max-w-2xl p-6 sm:p-8 space-y-4">
-      <button onclick="document.getElementById('modal-matching').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">✕</button>
+  if (conteudo) {
+    conteudo.innerHTML = `
       <div>
         <div class="flex items-center gap-2">
           <span class="text-xs font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">🎯 Radar de Oportunidades & Smart Match</span>
@@ -711,7 +795,7 @@ function abrirModalMatching(leadId) {
         <p class="text-xs text-slate-500">Cruzamento inteligente de perfil com o estoque ativo da imobiliária (Padrão Imoview Universal Software).</p>
       </div>
 
-      <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs mt-3">
         <div>
           <span class="text-slate-400 font-bold block text-[10px] uppercase">Interesse do Lead:</span>
           <span class="font-extrabold text-slate-800">${lead.imovelTitulo || lead.tipoInteresse || 'Compra / Locação'}</span>
@@ -722,14 +806,14 @@ function abrirModalMatching(leadId) {
         </div>
       </div>
 
-      <div class="space-y-3">
+      <div class="space-y-3 mt-4">
         <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider">Oportunidades em Estoque com Match Alto:</h4>
         <div class="space-y-2.5 max-h-[55vh] overflow-y-auto pr-1">
           ${matchesHtml}
         </div>
       </div>
-    </div>
-  `;
+    `;
+  }
 
   modal.classList.add('active');
 }
@@ -939,11 +1023,15 @@ function configurarPipelineKanbanERoleta() {
     e.preventDefault();
     const nome = document.getElementById('input-lead-nome')?.value.trim();
     const whatsapp = document.getElementById('input-lead-whatsapp')?.value.trim();
+    if (!nome || !whatsapp) {
+      alert('Por favor, informe pelo menos o Nome e o WhatsApp do lead.');
+      return;
+    }
     const email = document.getElementById('input-lead-email')?.value.trim();
     const origem = document.getElementById('input-lead-origem')?.value;
     const etapa = document.getElementById('input-lead-etapa')?.value;
     const imovelTitulo = document.getElementById('input-lead-imovel')?.value.trim();
-    const valorNegocio = parseFloat(document.getElementById('input-lead-valor')?.value) || 500000;
+    const valorNegocio = sanitizarNumero(document.getElementById('input-lead-valor')?.value) || 500000;
     const mensagem = document.getElementById('input-lead-msg')?.value.trim();
 
     DB.adicionarLead({
@@ -1049,9 +1137,9 @@ function configurarGestaoLocacao() {
     const proprietarioNome = document.getElementById('input-contrato-prop-nome')?.value.trim();
     const proprietarioDocumento = document.getElementById('input-contrato-prop-doc')?.value.trim();
     const proprietarioPix = document.getElementById('input-contrato-prop-pix')?.value.trim();
-    const valorAluguel = parseFloat(document.getElementById('input-contrato-aluguel')?.value) || 0;
-    const taxaAdmPercentual = parseFloat(document.getElementById('input-contrato-taxa')?.value) || 10;
-    const condominio = parseFloat(document.getElementById('input-contrato-condo')?.value) || 0;
+    const valorAluguel = sanitizarNumero(document.getElementById('input-contrato-aluguel')?.value);
+    const taxaAdmPercentual = sanitizarNumero(document.getElementById('input-contrato-taxa')?.value) || 10;
+    const condominio = sanitizarNumero(document.getElementById('input-contrato-condo')?.value);
 
     DB.adicionarContratoLocacao({
       codigo,
@@ -1084,7 +1172,8 @@ function configurarGestaoLocacao() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `DIMOB_2026_${DB.getConfig().nome.replace(/\s+/g, '_').toUpperCase()}.txt`;
+    const nomeLimpo = (DB.getConfig().nome || 'IMOBILIARIA').replace(/\s+/g, '_').toUpperCase();
+    a.download = `DIMOB_2026_${nomeLimpo}.txt`;
     a.click();
     alert('📄 Arquivo da Declaração DIMOB 2026 gerado com sucesso para envio à Receita Federal!');
   });
@@ -1479,7 +1568,7 @@ function configurarSofiaIA() {
               <div class="p-2 bg-black/30 border border-white/10 rounded-xl flex items-center justify-between gap-2">
                 <div>
                   <div class="font-bold text-white text-[11px]">${im.codigo} - ${im.titulo}</div>
-                  <div class="text-[10px] text-emerald-400 font-bold">R$ ${(im.preco || im.precoAluguel).toLocaleString('pt-BR')} • ${im.bairro}</div>
+                  <div class="text-[10px] text-emerald-400 font-bold">R$ ${(im.preco || im.precoAluguel || 0).toLocaleString('pt-BR')} • ${im.bairro}</div>
                 </div>
                 <a href="${resposta.waLink}" target="_blank" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg">
                   Visitar
@@ -1526,3 +1615,9 @@ window.abrirLaudoVistoria = abrirLaudoVistoria;
 window.excluirLead = excluirLead;
 window.gerarCopySocialImovel = gerarCopySocialImovel;
 window.abrirModalMatching = abrirModalMatching;
+window.dragKanbanLead = dragKanbanLead;
+window.allowDropKanban = allowDropKanban;
+window.dropKanbanLead = dropKanbanLead;
+window.comprimirImagem = comprimirImagem;
+window.sanitizarNumero = sanitizarNumero;
+
