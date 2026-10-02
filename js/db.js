@@ -932,6 +932,83 @@ const DB = {
     };
   },
 
+  // =========================================================================
+  // RADAR DE IMÓVEIS & SMART MATCH (INSPIRADO NO IMOVIEW UNIVERSAL SOFTWARE)
+  // =========================================================================
+  buscarMatchesRadarParaLead(leadId) {
+    const leads = this.getLeads();
+    const lead = typeof leadId === 'object' ? leadId : leads.find(l => l.id === leadId);
+    if (!lead) return [];
+
+    const imoveis = this.getImoveis().filter(im => im.status === 'disponivel');
+    const textoBusca = `${lead.tipoInteresse || ''} ${lead.mensagem || ''} ${lead.imovelTitulo || ''}`.toLowerCase();
+    const bairroLead = (lead.bairroInteresse || '').toLowerCase();
+
+    const matches = [];
+
+    imoveis.forEach(im => {
+      let score = 0;
+      const tipoIm = (im.tipo || '').toLowerCase();
+      const bairroIm = (im.bairro || '').toLowerCase();
+
+      // 1. Compatibilidade por Código Exato
+      if (lead.imovelCodigo && lead.imovelCodigo === im.codigo) {
+        score += 60;
+      }
+
+      // 2. Compatibilidade por Tipo
+      if (tipoIm && textoBusca.includes(tipoIm)) {
+        score += 35;
+      }
+
+      // 3. Compatibilidade por Bairro
+      if (bairroLead && (bairroIm.includes(bairroLead) || bairroLead.includes(bairroIm))) {
+        score += 35;
+      } else if (textoBusca.includes(bairroIm)) {
+        score += 25;
+      }
+
+      // 4. Compatibilidade por Faixa de Orçamento (até 25% de margem)
+      if (lead.valorNegocio && im.preco) {
+        const diff = Math.abs(lead.valorNegocio - im.preco) / lead.valorNegocio;
+        if (diff <= 0.15) score += 30;
+        else if (diff <= 0.30) score += 15;
+      }
+
+      if (score >= 30) {
+        const percentual = Math.min(100, Math.round((score / 95) * 100));
+        const config = this.getConfig();
+        const textoWa = `Olá ${lead.nome}! Notei seu interesse em imóveis no perfil que você busca. Selecionei esta oportunidade exclusiva no nosso acervo que tem ${percentual}% de compatibilidade com o seu perfil:\n\n🏡 *${im.codigo} - ${im.titulo}*\n📍 Localização: ${im.bairro}, ${im.cidade}\n💰 Valor: R$ ${(im.preco || im.precoAluguel).toLocaleString('pt-BR')}\n📐 Área: ${im.areaUtil}m² • ${im.quartos} quartos • ${im.vagas} vagas\n\nPodemos agendar uma visita presencial hoje?`;
+        
+        matches.push({
+          imovel: im,
+          score: percentual,
+          linkWhatsApp: `https://wa.me/${(lead.telefone || '').replace(/\D/g, '') || config.whatsapp}?text=${encodeURIComponent(textoWa)}`
+        });
+      }
+    });
+
+    matches.sort((a, b) => b.score - a.score);
+    return matches.slice(0, 4); // Top 4 melhores matches
+  },
+
+  obterTodosMatchesRadar() {
+    const leads = this.getLeads().filter(l => l.etapa !== 'fechado');
+    const resultado = [];
+
+    leads.forEach(l => {
+      const matches = this.buscarMatchesRadarParaLead(l);
+      if (matches.length > 0) {
+        resultado.push({
+          lead: l,
+          matches: matches
+        });
+      }
+    });
+
+    return resultado;
+  },
+
   removerLead(id) {
     let leads = this.getLeads();
     leads = leads.filter(item => item.id !== id);

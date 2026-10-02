@@ -64,7 +64,7 @@
   <!-- ========================================================================= -->
   <!-- TOPBAR INSTITUCIONAL COM HORÁRIO E REDES SOCIAIS                          -->
   <!-- ========================================================================= -->
-  <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
+  <div id="topbar-institucional" class="hidden">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
       
       <!-- Contatos e CRECI -->
@@ -106,42 +106,44 @@
   <!-- ========================================================================= -->
   <!-- CABEÇALHO PRINCIPAL DA IMOBILIÁRIA                                        -->
   <!-- ========================================================================= -->
-  <header class="bg-white border-b border-slate-200/80 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-white/95">
+  <header id="main-site-header" class="header-floating-clean">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
         
         <!-- Logo Oficial da Imobiliária -->
         <a href="index.html" class="flex items-center gap-3 group">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
           </div>
           <div>
-            <span class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 block leading-none imob-nome">
-              PRIME <span class="text-blue-600 font-extrabold text-sm tracking-normal uppercase bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">IMÓVEIS</span>
+            <span class="text-xl sm:text-2xl font-black tracking-tight block leading-none brand-title imob-nome">
+              PRIME <span class="text-blue-500 font-extrabold text-sm uppercase bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-400/20">IMÓVEIS</span>
             </span>
-            <span class="text-[11px] text-slate-500 font-medium tracking-wide block mt-1">Conceito & Imóveis Selecionados</span>
+            <span class="text-[11px] font-medium tracking-wide block mt-1 brand-subtitle">Santo André & Região • CRECI 34.890-J</span>
           </div>
         </a>
 
-        <!-- Menu de Navegação Desktop -->
-        <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-700">
-          <a href="#imoveis" class="hover:text-blue-600 transition">Comprar</a>
-          <a href="#imoveis" onclick="document.querySelector('.btn-tab-finalidade[data-finalidade=\'aluguel\']').click()" class="hover:text-blue-600 transition">Alugar</a>
-          <a href="#imoveis" onclick="document.querySelector('.btn-tab-finalidade[data-finalidade=\'lancamento\']').click()" class="hover:text-blue-600 transition flex items-center gap-1.5">
+        <!-- Menu de Navegação Desktop Clean -->
+        <nav class="hidden lg:flex items-center gap-7 text-sm font-semibold">
+          <a href="#imoveis" class="nav-item-clean">Comprar</a>
+          <a href="#imoveis" onclick="document.querySelector('.btn-tab-finalidade[data-finalidade=\'aluguel\']')?.click()" class="nav-item-clean">Alugar</a>
+          <a href="#imoveis" onclick="document.querySelector('.btn-tab-finalidade[data-finalidade=\'lancamento\']')?.click()" class="nav-item-clean flex items-center gap-1.5">
             <span>Lançamentos</span>
-            <span class="text-[9px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded">Novo</span>
+            <span class="text-[9px] bg-purple-500/20 text-purple-300 font-bold px-1.5 py-0.5 rounded border border-purple-400/30">Novo</span>
           </a>
-          <a href="#simulador" class="hover:text-blue-600 transition">Financiamento</a>
-          <a href="#anuncie" class="hover:text-blue-600 transition">Venda seu Imóvel</a>
-          <a href="#localizacao" class="hover:text-blue-600 transition">Contato</a>
+          <a href="#bairros-nobres" class="nav-item-clean">Bairros Nobres</a>
+          <a href="#simulador" class="nav-item-clean">Financiamento</a>
+          <a href="#anuncie" class="nav-item-clean">Anunciar Imóvel</a>
         </nav>
 
-        <!-- Ações do Topo: Anuncie + CTA WhatsApp -->
+        <!-- Ações do Topo: WhatsApp com status online -->
         <div class="flex items-center gap-3">
-          <a href="#anuncie" class="hidden sm:inline-flex text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-blue-600 px-3 py-2 transition">
-            Anunciar Imóvel
-          </a>
-          <a href="https://wa.me/5511970558412" target="_blank" class="link-wa-dinamico bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow-md shadow-emerald-600/20 flex items-center gap-2">
+          <div class="hidden sm:flex items-center gap-2 bg-slate-900/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-xs">
+            <span class="wa-status-dot"></span>
+            <span class="wa-status-text text-[11px] font-semibold text-slate-200">Estamos online agora</span>
+          </div>
+
+          <a href="https://wa.me/5511970558412" target="_blank" class="link-wa-dinamico bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center gap-2">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
             <span class="hidden sm:inline">Falar com Corretor</span>
             <span class="sm:hidden">WhatsApp</span>
@@ -155,54 +157,54 @@
   <!-- ========================================================================= -->
   <!-- HERO SECTION COM BUSCADOR INTEGRADO E DESIGN IMOBILIÁRIO DE ALTA CONVERSÃO -->
   <!-- ========================================================================= -->
-  <section class="relative bg-slate-900 py-16 sm:py-24 px-4 overflow-hidden min-h-[560px] flex items-center">
-    <!-- Imagem de Fundo de Alto Impacto com Scrim -->
+  <section class="relative bg-slate-950 py-20 sm:py-28 px-4 overflow-hidden min-h-[620px] flex items-center">
+    <!-- Imagem de Fundo de Alto Padrão com Scrim Suave -->
     <div class="absolute inset-0 z-0">
-      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80" alt="Residência de Alto Padrão" class="w-full h-full object-cover opacity-30">
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/80"></div>
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85" alt="Residência de Alto Padrão" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/75"></div>
     </div>
 
-    <div class="relative z-10 max-w-6xl mx-auto w-full text-center space-y-6">
+    <div class="relative z-10 max-w-6xl mx-auto w-full text-center space-y-6 pt-4">
       
-      <!-- Selo de Autoridade -->
-      <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full backdrop-blur-sm">
+      <!-- Selo Clean -->
+      <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full backdrop-blur-md">
         <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-        Assessoria Jurídica e Negociação Direta com Especialistas CRECI
+        <span>Curadoria Exclusiva em Santo André & Região</span>
       </div>
 
-      <!-- Título Principal Persuasivo -->
+      <!-- Título Principal Limpo & Elegante -->
       <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
-        Encontre o imóvel que combina perfeitamente com o seu estilo de vida.
+        Os melhores imóveis para comprar ou alugar.
       </h1>
 
-      <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-normal">
-        Casas em condomínio, coberturas, apartamentos prontos e lançamentos nos bairros mais nobres da região.
+      <p class="text-base sm:text-lg text-slate-200/90 max-w-2xl mx-auto font-light">
+        Encontre o imóvel que combina perfeitamente com o seu estilo de vida.
       </p>
 
       <!-- ===================================================================== -->
-      <!-- BOX DE BUSCA INTELIGENTE COM ABAS (COMPRAR / ALUGAR / LANÇAMENTOS)    -->
+      <!-- BOX DE BUSCA CLEAN FLUTUANTE (COMPRAR / ALUGAR / LANÇAMENTOS)          -->
       <!-- ===================================================================== -->
-      <div class="max-w-5xl mx-auto bg-white/95 backdrop-blur-md p-4 sm:p-6 rounded-3xl shadow-2xl border border-white/20 text-left mt-8">
+      <div class="max-w-4xl mx-auto bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-3xl shadow-2xl border border-white/30 text-left mt-6">
         
-        <!-- Abas de Finalidade -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-4 mb-4 overflow-x-auto">
-          <button data-finalidade="todos" class="btn-tab-finalidade active bg-blue-600 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition shadow-md">
-            Todos os Imóveis
+        <!-- Abas em Pílula -->
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-3 mb-4">
+          <button data-finalidade="todos" class="btn-tab-finalidade active bg-blue-600 text-white font-bold text-xs sm:text-sm px-5 py-2 rounded-xl transition shadow">
+            Todos
           </button>
-          <button data-finalidade="venda" class="btn-tab-finalidade bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition">
-            Comprar (Venda)
+          <button data-finalidade="venda" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-5 py-2 rounded-xl transition">
+            Comprar
           </button>
-          <button data-finalidade="aluguel" class="btn-tab-finalidade bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition">
+          <button data-finalidade="aluguel" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-5 py-2 rounded-xl transition">
             Alugar
           </button>
-          <button data-finalidade="lancamento" class="btn-tab-finalidade bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition flex items-center gap-1.5">
+          <button data-finalidade="lancamento" class="btn-tab-finalidade bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition flex items-center gap-1.5">
             <span>Lançamentos</span>
-            <span class="text-[9px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.2 rounded">Na Planta</span>
+            <span class="text-[9px] bg-purple-200 text-purple-800 font-bold px-1.5 py-0.5 rounded">Planta</span>
           </button>
         </div>
 
-        <!-- Linha de Filtros Rápidos -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <!-- Linha de Filtros Objetivos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           
           <!-- Tipo de Imóvel -->
           <div>
@@ -214,7 +216,6 @@
               <option value="casa">Casa / Sobrado</option>
               <option value="condominio">Casa em Condomínio</option>
               <option value="lancamento">Lançamento na Planta</option>
-              <option value="comercial">Comercial / Laje</option>
             </select>
           </div>
 
@@ -234,19 +235,7 @@
               <option value="1">1+ Quarto</option>
               <option value="2">2+ Quartos</option>
               <option value="3">3+ Quartos</option>
-              <option value="4">4+ Quartos / Suítes</option>
-            </select>
-          </div>
-
-          <!-- Vagas de Garagem -->
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Vagas de Garagem</label>
-            <select id="filtro-vagas" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Qualquer quantidade</option>
-              <option value="1">1+ Vaga</option>
-              <option value="2">2+ Vagas</option>
-              <option value="3">3+ Vagas</option>
-              <option value="4">4+ Vagas</option>
+              <option value="4">4+ Quartos</option>
             </select>
           </div>
 
@@ -254,7 +243,7 @@
           <div class="flex items-end">
             <a href="#imoveis" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <span>Ver Imóveis</span>
+              <span>Buscar Imóveis</span>
             </a>
           </div>
 
@@ -266,25 +255,76 @@
   </section>
 
   <!-- ========================================================================= -->
-  <!-- BARRA DE AUTORIDADE & ESTATÍSTICAS REAIS DA IMOBILIÁRIA                   -->
+  <!-- SEÇÃO: MORE NOS MELHORES BAIRROS DE SANTO ANDRÉ (INSPIRADO NA PANTERA)    -->
   <!-- ========================================================================= -->
-  <section class="bg-white border-b border-slate-200 py-8 px-4">
-    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div class="space-y-1">
-        <span class="text-2xl sm:text-3xl font-black text-blue-600 block">+15 Anos</span>
-        <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Tradição e Segurança</span>
+  <section id="bairros-nobres" class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-md">Regiões Nobres</span>
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-2">More nos melhores bairros de Santo André</h2>
+        <p class="text-slate-500 text-sm mt-1">Clique no bairro desejado para visualizar as melhores oportunidades disponíveis.</p>
       </div>
-      <div class="space-y-1">
-        <span class="text-2xl sm:text-3xl font-black text-slate-900 block">+R$ 250 Mi</span>
-        <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Em Imóveis Negociados</span>
-      </div>
-      <div class="space-y-1">
-        <span class="text-2xl sm:text-3xl font-black text-slate-900 block">100%</span>
-        <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Laudo Jurídico & Cartorial</span>
-      </div>
-      <div class="space-y-1">
-        <span class="text-2xl sm:text-3xl font-black text-emerald-600 block">Online</span>
-        <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Atendimento Imediato</span>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Bairro Jardim -->
+        <div class="bairro-pill-card group" onclick="filtrarPorBairroRapido('Bairro Jardim')" title="Ver imóveis no Bairro Jardim">
+          <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" alt="Bairro Jardim">
+          <div class="bairro-pill-scrim">
+            <span class="text-[10px] font-extrabold uppercase text-blue-300">Alto Padrão</span>
+            <h4 class="font-black text-sm text-white leading-tight">Bairro Jardim</h4>
+            <span class="text-[11px] text-slate-300 group-hover:text-white transition">Ver imóveis →</span>
+          </div>
+        </div>
+
+        <!-- Campestre -->
+        <div class="bairro-pill-card group" onclick="filtrarPorBairroRapido('Campestre')" title="Ver imóveis no Campestre">
+          <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Campestre">
+          <div class="bairro-pill-scrim">
+            <span class="text-[10px] font-extrabold uppercase text-blue-300">Arborizado</span>
+            <h4 class="font-black text-sm text-white leading-tight">Campestre</h4>
+            <span class="text-[11px] text-slate-300 group-hover:text-white transition">Ver imóveis →</span>
+          </div>
+        </div>
+
+        <!-- Vila Gilda -->
+        <div class="bairro-pill-card group" onclick="filtrarPorBairroRapido('Vila Gilda')" title="Ver imóveis na Vila Gilda">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Vila Gilda">
+          <div class="bairro-pill-scrim">
+            <span class="text-[10px] font-extrabold uppercase text-blue-300">Shopping ABC</span>
+            <h4 class="font-black text-sm text-white leading-tight">Vila Gilda</h4>
+            <span class="text-[11px] text-slate-300 group-hover:text-white transition">Ver imóveis →</span>
+          </div>
+        </div>
+
+        <!-- Parque das Nações -->
+        <div class="bairro-pill-card group" onclick="filtrarPorBairroRapido('Parque das Nações')" title="Ver imóveis no Parque das Nações">
+          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" alt="Parque das Nações">
+          <div class="bairro-pill-scrim">
+            <span class="text-[10px] font-extrabold uppercase text-blue-300">Mobilidade</span>
+            <h4 class="font-black text-sm text-white leading-tight">Pq. das Nações</h4>
+            <span class="text-[11px] text-slate-300 group-hover:text-white transition">Ver imóveis →</span>
+          </div>
+        </div>
+
+        <!-- Vila Bastos -->
+        <div class="bairro-pill-card group" onclick="filtrarPorBairroRapido('Vila Bastos')" title="Ver imóveis na Vila Bastos">
+          <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=600&q=80" alt="Vila Bastos">
+          <div class="bairro-pill-scrim">
+            <span class="text-[10px] font-extrabold uppercase text-blue-300">Tradição</span>
+            <h4 class="font-black text-sm text-white leading-tight">Vila Bastos</h4>
+            <span class="text-[11px] text-slate-300 group-hover:text-white transition">Ver imóveis →</span>
+          </div>
+        </div>
+
+        <!-- Centro -->
+        <div class="bairro-pill-card group" onclick="filtrarPorBairroRapido('Centro')" title="Ver imóveis no Centro">
+          <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80" alt="Centro">
+          <div class="bairro-pill-scrim">
+            <span class="text-[10px] font-extrabold uppercase text-blue-300">Conveniência</span>
+            <h4 class="font-black text-sm text-white leading-tight">Centro</h4>
+            <span class="text-[11px] text-slate-300 group-hover:text-white transition">Ver imóveis →</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>

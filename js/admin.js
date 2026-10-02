@@ -638,13 +638,13 @@ function renderizarPipelineKanban() {
 }
 
 /**
- * 8. Modal de Matching Inteligente (Cruzamento Lead x Imóveis Semelhantes)
+ * 8. Modal de Radar de Imóveis & Smart Match (Inspirado no Imoview Universal Software)
  */
 function abrirModalMatching(leadId) {
   const lead = DB.getLeads().find(l => l.id === leadId);
   if (!lead) return;
 
-  const resultado = DB.buscarMatchingImoveis(lead);
+  const matches = DB.buscarMatchesRadarParaLead ? DB.buscarMatchesRadarParaLead(lead) : [];
   let modal = document.getElementById('modal-matching');
   if (!modal) {
     modal = document.createElement('div');
@@ -653,47 +653,53 @@ function abrirModalMatching(leadId) {
     document.body.appendChild(modal);
   }
 
-  const imovelPrincipalHtml = resultado.imovelConsultado ? `
-    <div class="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-3">
-      <img src="${resultado.imovelConsultado.fotoPrincipal}" class="w-16 h-12 object-cover rounded-xl">
-      <div>
-        <span class="text-[10px] uppercase font-bold text-blue-700 bg-white px-2 py-0.5 rounded">Imóvel Consultado</span>
-        <h4 class="font-bold text-slate-900 text-xs">${resultado.imovelConsultado.codigo} - ${resultado.imovelConsultado.titulo}</h4>
-        <span class="text-xs text-blue-600 font-extrabold">R$ ${resultado.imovelConsultado.preco.toLocaleString('pt-BR')}</span>
-      </div>
-    </div>
-  ` : '<p class="text-xs text-slate-500">Imóvel original não localizado no catálogo.</p>';
-
-  const semelhantesHtml = (resultado.sugestoesMatching.length > 0) ? resultado.sugestoesMatching.map(im => `
-    <div class="p-3 bg-white border border-slate-200 rounded-2xl flex items-center justify-between gap-3 hover:border-blue-400 transition">
+  const matchesHtml = (matches.length > 0) ? matches.map(m => `
+    <div class="p-3 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-indigo-400 hover:shadow-sm transition">
       <div class="flex items-center gap-3">
-        <img src="${im.fotoPrincipal}" class="w-14 h-11 object-cover rounded-xl">
+        <img src="${m.imovel.fotoPrincipal || (m.imovel.fotos && m.imovel.fotos[0])}" class="w-16 h-14 object-cover rounded-xl border border-slate-200">
         <div>
-          <h5 class="font-bold text-slate-800 text-xs">${im.codigo} - ${im.titulo}</h5>
-          <div class="text-[11px] text-slate-500">${im.bairro} • ${im.areaUtil}m² • ${im.quartos} qtos</div>
-          <span class="text-xs text-slate-900 font-black">R$ ${(im.preco || im.precoAluguel).toLocaleString('pt-BR')}</span>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-black uppercase text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">${m.score}% MATCH</span>
+            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">${m.imovel.codigo}</span>
+          </div>
+          <h5 class="font-bold text-slate-900 text-xs mt-0.5">${m.imovel.titulo}</h5>
+          <div class="text-[11px] text-slate-500">${m.imovel.bairro}, ${m.imovel.cidade || 'Santo André'} • ${m.imovel.areaUtil}m² • ${m.imovel.quartos} qtos</div>
+          <span class="text-xs text-slate-900 font-black">R$ ${(m.imovel.preco || m.imovel.precoAluguel).toLocaleString('pt-BR')}</span>
         </div>
       </div>
-      <a href="https://wa.me/${(lead.whatsapp || '').replace(/\D/g, '')}?text=${encodeURIComponent(`Olá ${lead.nome}! Além do imóvel que você viu, temos esta excelente opção com características semelhantes: ${im.codigo} - ${im.titulo} (${im.bairro}). Gostaria de receber fotos?`)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-1 shadow-sm">
-        <span>Enviar Opção</span>
+      <a href="${m.linkWhatsApp}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap">
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+        <span>Enviar no WhatsApp</span>
       </a>
     </div>
-  `).join('') : '<p class="text-xs text-slate-400 py-3 text-center">Nenhum outro imóvel com perfil semelhante encontrado no momento.</p>';
+  `).join('') : '<p class="text-xs text-slate-400 py-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">Nenhum imóvel disponível no acervo com compatibilidade para este perfil no momento.</p>';
 
   modal.innerHTML = `
     <div class="modal-content relative !max-w-2xl p-6 sm:p-8 space-y-4">
       <button onclick="document.getElementById('modal-matching').classList.remove('active')" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition">✕</button>
       <div>
-        <span class="text-xs font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded">Matching com Inteligência Artificial</span>
-        <h3 class="text-xl font-black text-slate-900 mt-1">Imóveis Recomendados para ${lead.nome}</h3>
-        <p class="text-xs text-slate-500">Cruze o perfil do cliente com outras opções do catálogo para não perder a venda.</p>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">🎯 Radar de Oportunidades & Smart Match</span>
+        </div>
+        <h3 class="text-xl font-black text-slate-900 mt-1">Imóveis Compatíveis para ${lead.nome}</h3>
+        <p class="text-xs text-slate-500">Cruzamento inteligente de perfil com o estoque ativo da imobiliária (Padrão Imoview Universal Software).</p>
+      </div>
+
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
+        <div>
+          <span class="text-slate-400 font-bold block text-[10px] uppercase">Interesse do Lead:</span>
+          <span class="font-extrabold text-slate-800">${lead.imovelTitulo || lead.tipoInteresse || 'Compra / Locação'}</span>
+        </div>
+        <div class="text-right">
+          <span class="text-slate-400 font-bold block text-[10px] uppercase">Orçamento Negócio:</span>
+          <span class="font-extrabold text-slate-900">R$ ${(lead.valorNegocio || 0).toLocaleString('pt-BR')}</span>
+        </div>
       </div>
 
       <div class="space-y-3">
-        ${imovelPrincipalHtml}
-        <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider mt-4">Sugestões de Imóveis Compatíveis:</h4>
-        <div class="space-y-2">
-          ${semelhantesHtml}
+        <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider">Oportunidades em Estoque com Match Alto:</h4>
+        <div class="space-y-2.5 max-h-[55vh] overflow-y-auto pr-1">
+          ${matchesHtml}
         </div>
       </div>
     </div>

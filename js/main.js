@@ -1008,3 +1008,39 @@ window.abrirModalPrivacidade = abrirModalPrivacidade;
 window.dispararEventoRemarketing = dispararEventoRemarketing;
 window.configurarWidgetSofiaIA = configurarWidgetSofiaIA;
 
+// Header scroll listener para efeito dinâmico transparente/sólido (Padrão Pantera)
+window.addEventListener('scroll', () => {
+  const header = document.getElementById('main-site-header');
+  if (header) {
+    if (window.scrollY > 25) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  }
+});
+
+// Filtro rápido por bairro ao clicar nas pílulas / cards de bairros
+function filtrarPorBairroRapido(nomeBairro) {
+  const selectBairro = document.getElementById('filtro-bairro');
+  if (selectBairro) {
+    let encontrou = false;
+    for (let opt of selectBairro.options) {
+      if (opt.value && (opt.value.toLowerCase().includes(nomeBairro.toLowerCase()) || nomeBairro.toLowerCase().includes(opt.value.toLowerCase()))) {
+        selectBairro.value = opt.value;
+        encontrou = true;
+        break;
+      }
+    }
+    if (!encontrou && selectBairro.querySelector(`option[value="${nomeBairro}"]`)) {
+      selectBairro.value = nomeBairro;
+    }
+    if (window.aplicarFiltrosEstatisticas) {
+      window.aplicarFiltrosEstatisticas();
+    }
+    document.getElementById('imoveis')?.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+window.filtrarPorBairroRapido = filtrarPorBairroRapido;
+
+
